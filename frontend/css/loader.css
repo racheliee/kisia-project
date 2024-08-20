@@ -1,17 +1,75 @@
-.loader {
-  border: 16px solid #f3f3f3; /* Light grey background */
-  border-top: 16px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 120px;
-  height: 120px;
-  animation: spin 2s linear infinite;
+body {
+  font-family: 'Noto Sans KR', 'Roboto', Arial, sans-serif;
+  background-color: hsl(0, 0%, 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 350px;
+  height: 450px;
+  margin: 0;
+  border-radius: 10px;
+  color: #091a36;
+  overflow: hidden;
 }
 
-@keyframes spin {
-  0% {
+.container {
+  text-align: center;
+  background-color: #f6f6f6;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  width: 320px;
+  max-width: 320px;
+}
+
+.logo {
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  color: #b0364f;
+  position: relative;
+  background: radial-gradient(10px, currentColor 94%, #0000);
+  margin: 20px auto;
+  margin-bottom: 40px;
+}
+
+.loader:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(9px at bottom right, #0000 94%, currentColor) top
+      left,
+    radial-gradient(9px at bottom left, #0000 94%, currentColor) top right,
+    radial-gradient(9px at top right, #0000 94%, currentColor) bottom left,
+    radial-gradient(9px at top left, #0000 94%, currentColor) bottom right;
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  animation: l18 1.5s infinite cubic-bezier(0.3, 1, 0, 1);
+}
+
+@keyframes l18 {
+  33% {
+    inset: -10px;
     transform: rotate(0deg);
   }
-  100% {
-    transform: rotate(360deg);
+  66% {
+    inset: -10px;
+    transform: rotate(90deg);
   }
+  100% {
+    inset: 0;
+    transform: rotate(90deg);
+  }
+}
+
+.loading-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: #091a36;
+  margin: 20px 0;
 }

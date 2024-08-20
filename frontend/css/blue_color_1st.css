@@ -1,0 +1,15 @@
+.url-text {
+  color: #3a4995;
+}
+
+.highlight {
+  color: #737fb8;
+}
+
+.redirectButton {
+  background-color: #3a4995;
+}
+
+.redirectButton:hover {
+  background-color: #737fb8;
+}
