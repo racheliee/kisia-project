@@ -133,7 +133,7 @@ export class UrlService {
                 throw new Error(`URL Void API error: ${data.message}`);
             }
 
-            // console.log(JSON.stringify(data, null, 2));
+            console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.data.report.risk_score.result > 70 ||
             data.data.report.domain_blacklist.detections > 0 ||
