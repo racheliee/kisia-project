@@ -2,8 +2,9 @@
 FROM node:18-alpine
 
 # Install Dockerize
-RUN apk add --no-cache curl \
-    && curl -sSL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz | tar -C /usr/local/bin -xzv
+ENV DOCKERIZE_VERSION v0.2.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -32,4 +33,4 @@ ENTRYPOINT [ "sh", "usr/src/app/docker-entrypoint.sh" ]
 EXPOSE 8000
 
 # Serve the app
-CMD [ "npm", "run", "start" ]
+# CMD [ "npm", "run", "start" ]
