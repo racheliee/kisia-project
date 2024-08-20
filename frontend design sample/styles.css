@@ -1,45 +1,56 @@
+/* Use Noto Sans KR as default font for the body */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  font-family: 'Noto Sans KR', 'Roboto', Arial, sans-serif;
+  background-color: hsl(0, 0%, 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  /* height: 100vh; */
   width: 300px;
   height: 400px;
   margin: 0;
-  border-radius: 10px; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-  overflow: hidden;
+  border-radius: 10px;
   color: #091a36;
 }
 
 .container {
   text-align: center;
-  background-color: #eff1f7; 
+  background-color: #f6f6f6;
   padding: 30px;
+  padding-top: 0px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  width: 300px;
+  width: 320px;
 }
 
-.container img {
-  max-width: 200px; /* 이미지 크기를 적절하게 조정 */
-  height: auto;
-  margin-bottom: 15px; /* 이미지와 텍스트 사이에 간격 */
-  margin-top: 5px;
+.logo {
+  width: 60%;
+  margin-top: 0px;
+  margin-bottom: -30px; /* Adjusted margin */
 }
 
-p {
-  font-size: 18px;
-  color: #333;
-  margin: 10px 0;
+.url-display {
+  background-color: #ffffff;
+  padding: 20px;
+  margin-top: 10px; /* Adjusted top margin to balance spacing */
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .url-text {
-  color: #ff5722;
-  font-weight: bold;
-  word-break: break-all;
+  font-size: 18px;
+  color: #8B0000;
+  font-weight: 700; /* Adjusted weight */
+  margin: 0;
+  overflow: hidden;          /* Ensure the text does not overflow */
+  text-overflow: ellipsis;   /* Add ellipsis when text overflows */
+  white-space: nowrap;       /* Prevent the text from wrapping to the next line */
+}
+
+.alert-text {
+  font-size: 18px;
+  color: #333;
+  margin-top: 10px;
 }
 
 .highlight {
@@ -51,10 +62,10 @@ p {
 .exitButton {
   display: block;
   width: 100%;
-  margin: 3px 0;
-  padding: 15px;
+  margin: 10px 0;
+  padding: 12px;
   font-size: 16px;
-  background-color: #1e85ff;
+  background-color: #8B0000;
   color: white;
   border: none;
   border-radius: 5px;
@@ -63,28 +74,15 @@ p {
 }
 
 .redirectButton:hover {
-  background-color: hwb(213 12% 10%);
+  background-color: #a30000;
   transform: scale(1.05);
 }
 
 .exitButton {
-  background-color: #848590;
+  background-color: #555;
 }
 
 .exitButton:hover {
-  background-color: hwb(0 74% 40%);
+  background-color: #333;
   transform: scale(1.05);
-}
-
-.emoji {
-  font-size: 40px;
-}
-
-section {
-  border: 1px solid #ccc;
-  padding: 15px;
-  background-color: #ffc0c0; 
-  margin-bottom: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
 }
