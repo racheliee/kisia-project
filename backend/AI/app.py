@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
-import modules.url_checker as url_checker
+import modules.url_check as url_check
 import logging
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -24,6 +25,14 @@ def check_url():
             "message": "No URL provided"
         })
     
-    result = url_checker.check_url(url)
+    result = url_check.check_url(url)
     
-    # return result
+    #  todo: fix result
+    return jsonify({
+        "statusCode": 200,
+        "message": "Successfully completed url_check",
+        "isMalicious": True
+    })
+    
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
