@@ -1,12 +1,11 @@
-/* Use Noto Sans KR as default font for the body */
 body {
   font-family: 'Noto Sans KR', 'Roboto', Arial, sans-serif;
   background-color: hsl(0, 0%, 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 300px;
-  height: 400px;
+  width: 100vw;
+  height: 100vh;
   margin: 0;
   border-radius: 10px;
   color: #091a36;
@@ -15,26 +14,31 @@ body {
 .container {
   text-align: center;
   background-color: #f6f6f6;
-  padding: 30px;
-  padding-top: 0px;
+  padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   width: 320px;
+  max-width: 320px; /* Ensure the container width remains fixed */
 }
 
 .logo {
   width: 60%;
   margin-top: 0px;
-  margin-bottom: -30px; /* Adjusted margin */
+  margin-bottom: -20px; /* Adjusted margin */
 }
 
 .url-display {
   background-color: #ffffff;
   padding: 20px;
-  margin-top: 10px; /* Adjusted top margin to balance spacing */
+  margin-top: 10px;
   margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 280px; /* Ensure the width of the display area remains fixed */
+  margin-left: auto; /* Center the URL display within the container */
+  margin-right: auto; /* Center the URL display within the container */
+  overflow: hidden; /* Prevent content overflow */
 }
 
 .url-text {
@@ -42,9 +46,12 @@ body {
   color: #8B0000;
   font-weight: 700; /* Adjusted weight */
   margin: 0;
-  overflow: hidden;          /* Ensure the text does not overflow */
-  text-overflow: ellipsis;   /* Add ellipsis when text overflows */
-  white-space: nowrap;       /* Prevent the text from wrapping to the next line */
+  overflow: hidden; /* Ensure the text does not overflow */
+  text-overflow: ellipsis; /* Add ellipsis when text overflows */
+  white-space: nowrap; /* Prevent the text from wrapping to the next line */
+  width: 100%; /* Keep the text within the container */
+  text-align: center; /* Center the text */
+  display: block;
 }
 
 .alert-text {
