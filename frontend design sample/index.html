@@ -4,26 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="styles.css" />
-    <title>1st_detected</title>
-    <style></style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>URL Detector</title>
   </head>
   <body>
     <div class="container">
-      <!-- <p>logo + kisia</p>  -->
-       <header>
-         <img src="/last.png" alt="">
-       </header>
-      <p id="name" style="font-size: 25px; border-bottom: 2px solid black;">urls's checker</p>
-      
-      
-      <section>
-        <p class="emoji">👿</p>
-        <p>
-          URL이 악성으로 <br /><span class="highlight">탐지</span>되었습니다.
+      <header>
+        <img src="urls-text-logo.png" alt="URL Checker" class="logo" />
+      </header>
+
+      <section class="url-display">
+        <p class="url-text">https://example.com</p>
+        <p class="alert-text">
+          해당 URL은 <span class="highlight">악성</span>으로 <br>탐지 되었습니다.
         </p>
       </section>
 
-      <button class="redirectButton">A.I. 검사</button>
+      <button class="redirectButton">AI 검사</button>
       <button class="exitButton">종료</button>
     </div>
 
