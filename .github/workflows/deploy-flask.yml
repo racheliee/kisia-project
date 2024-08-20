@@ -1,4 +1,4 @@
-name: Docker Image CI/CD
+name: Docker NestJS Image CI/CD
 
 on:
   push:
