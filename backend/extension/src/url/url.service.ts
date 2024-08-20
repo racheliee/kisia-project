@@ -40,7 +40,7 @@ export class UrlService {
             this.logger.log('Adding to database:', url);
         }
 
-        this.logger.log("API check result:", apiCheckResult);
+        this.logger.log(`API check result: ${apiCheckResult}`);
         
         return {
             url: url,
@@ -103,9 +103,9 @@ export class UrlService {
 
             const data = await response.json();
 
-            console.log(JSON.stringify(data, null, 2));
+            // console.log(JSON.stringify(data, null, 2));
 
-            const isMalicious = data.risk_score > 70 || data.security_checks.domain_flagged || data.security_checks.url_flagged || data.security_checks.ai_flagged;
+            const isMalicious = data.risk_score > 70 || data.security_checks.domain_flagged || data.security_checks.url_flagged; // || data.security_checks.ai_flagged;
 
             return isMalicious;
         } catch (error) {
