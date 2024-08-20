@@ -2,10 +2,12 @@ from flask import Flask, request, jsonify
 import modules.url_check as url_check
 import logging
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv() # Load environment variables
 
 app = Flask(__name__)
+cors = CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 
