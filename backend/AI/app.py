@@ -3,11 +3,13 @@ import modules.url_check as url_check
 import logging
 from dotenv import load_dotenv
 
+load_dotenv() # Load environment variables
+
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-@app.route('url/ai', method=['POST'])
+@app.route('/url/ai', methods=['POST'])
 def check_url():
     data = request.get_json()
     
@@ -25,14 +27,21 @@ def check_url():
             "message": "No URL provided"
         })
     
-    result = url_check.check_url(url)
-    
-    #  todo: fix result
-    return jsonify({
-        "statusCode": 200,
-        "message": "Successfully completed url_check",
-        "isMalicious": True
-    })
+    try:
+        result = url_check.check_url()
+        logging.info(f"Result: {result}")
+        return jsonify({ #  todo: fix result
+            "statusCode": 200,
+            "message": "Successfully completed URL check",
+            "isMalicious": result.get('isMalicious', False) # assume result is a dict with key 'isMalicious'
+        }), 200
+    except Exception as e:
+        logging.error(f"Error checking url: {e}")
+        return jsonify({
+            "statusCode": 500,
+            "message": "Internal server error"
+        }), 500
+
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
