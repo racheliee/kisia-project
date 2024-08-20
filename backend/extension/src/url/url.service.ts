@@ -98,7 +98,8 @@ export class UrlService {
             });
 
             if (!response.ok) { // check for HTTP error
-                throw new Error(`HTTP error! status: ${response.status}`);
+                this.logger.error(`Error in checking LinkShield API: HTTP error! status: ${response.status}`);
+                return false;
             }
 
             const data = await response.json();
@@ -124,13 +125,15 @@ export class UrlService {
             const response = await fetch(base_url);
 
             if (!response.ok) { // check for HTTP error
-                throw new Error(`HTTP error! status: ${response.status}`);
+                this.logger.error(`Error in checking URLVoid API: HTTP error! status: ${response.status}`);
+                return false;
             }
 
             const data = await response.json();
 
             if (data.success === false) {
-                throw new Error(`URL Void API error: ${data.message}`);
+                this.logger.error(`Error in checking URLVoid API: ${data.message}`);
+                return false;
             }
 
             console.log(JSON.stringify(data, null, 2));
