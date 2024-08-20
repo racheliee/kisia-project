@@ -2,8 +2,10 @@ version: "3.7"
 
 services:
   extension:
-    image: ${DOCKER_USERNAME}/kisia-project-backend:extension
+    # image: ${DOCKER_USERNAME}/kisia-project-backend:extension
     container_name: extension
+    build:
+      context: extension/
     ports:
       - "8000:8000"
     depends_on:
@@ -31,7 +33,9 @@ services:
       - app-network
 
   ai:
-    image: ${DOCKER_USERNAME}/kisia-project-backend:ai
+    # image: ${DOCKER_USERNAME}/kisia-project-backend:ai
+    build:
+      context: AI/
     container_name: ai
     ports:
       - "8080:8080"
