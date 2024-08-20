@@ -24,6 +24,7 @@ COPY . .
 # Build the app
 RUN npm run build
 
+COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 ENTRYPOINT [ "sh", "usr/src/app/docker-entrypoint.sh" ]
 
