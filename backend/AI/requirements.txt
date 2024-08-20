@@ -10,6 +10,7 @@ MarkupSafe==2.1.5
 pip==24.0
 pyee==11.1.0
 pyppeteer==2.0.0
+python-dotenv==1.0.1
 setuptools==72.1.0
 tqdm==4.66.5
 typing_extensions==4.12.2
