@@ -4,11 +4,12 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  width: 300px;
+  height: 400px;
   margin: 0;
   border-radius: 10px;
   color: #091a36;
+  overflow: hidden;
 }
 
 .container {
@@ -34,7 +35,6 @@ body {
   margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
   max-width: 280px; /* Ensure the width of the display area remains fixed */
   margin-left: auto; /* Center the URL display within the container */
   margin-right: auto; /* Center the URL display within the container */
