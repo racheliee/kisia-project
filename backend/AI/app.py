@@ -3,7 +3,7 @@ import modules.url_check as url_check
 import logging
 from dotenv import load_dotenv
 from flask_cors import CORS
-import os
+import time
 
 load_dotenv() # Load environment variables
 
@@ -14,7 +14,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/url/ai', methods=['POST'])
 def check_url():
-    os.sleep(10); 
+    # sleep for 10 seconds
+    time.sleep(10)
     
     data = request.get_json()
     
