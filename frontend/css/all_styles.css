@@ -1,0 +1,16 @@
+/* 팝업 전체 크기 고정 */
+html, body {
+  width: 300px; /* 원하는 고정 너비 */
+  height: 400px; /* 원하는 고정 높이 */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 내용이 넘칠 경우 스크롤을 숨김 */
+}
+
+/* 다른 스타일 */
+body {
+  font-family: Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+}
