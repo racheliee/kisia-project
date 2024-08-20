@@ -47,6 +47,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:extension
             docker stop extension || true
             docker rm extension || true
-            docker run -d --log-driver=syslog -p 8000:8000 --network app --env-file .env --name extension ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:extension
+            docker run -d --log-driver=syslog -p 8000:8000 --network app-network --env-file .env --name extension ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:extension
             echo "Extension docker image has been deployed successfully."
             docker image prune -a -f
