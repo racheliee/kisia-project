@@ -12,9 +12,8 @@ cors = CORS(app)
 
 logging.basicConfig(level=logging.DEBUG)
 
-
 @app.route('/url/ai', methods=['POST'])
-def check_url():
+def process_url():
     # sleep for 10 seconds
     time.sleep(10)
 
@@ -44,7 +43,7 @@ def check_url():
             "message": "Successfully completed URL check",
             "data": {
                 "url": url,
-                "isMalicious": result.get('isMalicious', False), # assume result is a dict with key 'isMalicious'
+                "isMalicious": result, # assume result is boolean (currently hardcoded to True)
                 "source": 2,
             }
         }), 200
