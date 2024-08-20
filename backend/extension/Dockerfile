@@ -27,7 +27,7 @@ RUN npm run build
 
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
-ENTRYPOINT [ "sh", "usr/src/app/docker-entrypoint.sh" ]
+ENTRYPOINT [ "sh", "/usr/src/app/docker-entrypoint.sh" ]
 
 # Expose the port the app runs on
 EXPOSE 8000
