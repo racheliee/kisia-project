@@ -3,14 +3,14 @@ name: Docker Image CI/CD
 on:
   push:
     paths:
-      - backend/ai/**  # Only run workflow when changes are made to the backend/ai directory
+      - backend/AI/**  # Only run workflow when changes are made to the backend/AI directory
       - .github/workflows/deploy-flask.yml
     branches:
       - main
 
 defaults:
   run:
-    working-directory: backend/ai
+    working-directory: backend/AI
 
 jobs:
   build-and-deploy:
