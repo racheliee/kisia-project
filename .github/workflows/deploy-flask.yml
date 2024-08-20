@@ -1,16 +1,16 @@
-name: Docker Image CI/CD
+name: Docker NestJS Image CI/CD
 
 on:
   push:
     paths:
-      - backend/ai/**  # Only run workflow when changes are made to the backend/ai directory
+      - backend/AI/**  # Only run workflow when changes are made to the backend/AI directory
       - .github/workflows/deploy-flask.yml
     branches:
       - main
 
 defaults:
   run:
-    working-directory: backend/ai
+    working-directory: backend/AI
 
 jobs:
   build-and-deploy:
@@ -35,6 +35,7 @@ jobs:
   deploy:
     needs: build-and-deploy
     runs-on: ubuntu-latest
+    environment: Deployment Test
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
