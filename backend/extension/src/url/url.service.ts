@@ -98,7 +98,7 @@ export class UrlService {
 
             const data = await response.json();
 
-            console.log(JSON.stringify(data, null, 2));
+            // console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.risk_score > 70 || data.security_checks.domain_flagged || data.security_checks.url_flagged || data.security_checks.ai_flagged;
 
@@ -116,6 +116,7 @@ export class UrlService {
     async checkURLhausAPI(url: string) { }
 
     async checkURLVoidAPI(url: string) {
+
         const base_url = new URL("https://endpoint.apivoid.com/urlrep/v1/pay-as-you-go/");
         base_url.searchParams.append("key", process.env.URL_VOID_API_KEY);
         base_url.searchParams.append("url", url);
@@ -135,7 +136,7 @@ export class UrlService {
                 throw new Error(`URL Void API error: ${data.message}`);
             }
 
-            console.log(JSON.stringify(data, null, 2));
+            // console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.data.report.risk_score.result > 70 ||
             data.data.report.domain_blacklist.detections > 0 ||
