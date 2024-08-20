@@ -14,7 +14,6 @@ export class UrlService {
         });
 
         if (databaseResult) { // return if found
-            // console.log('Found in database:', existingUrl);
             // update access count
             await this.prismaService.url.update({
                 where: {url: url},
@@ -22,6 +21,8 @@ export class UrlService {
                     accessCount: databaseResult.accessCount + 1,
                 }
             });
+
+            this.logger.log(`Found in database: ${url}`);
 
             // return value
             return {
@@ -36,7 +37,10 @@ export class UrlService {
 
         if (apiCheckResult) {
             this.saveToDatabase(url, true);
+            this.logger.log('Adding to database:', url);
         }
+
+        this.logger.log("API check result:", apiCheckResult);
         
         return {
             url: url,
@@ -62,15 +66,16 @@ export class UrlService {
     async checkExternalApis(url: string) {
         const result = await Promise.all([
             this.checkLinkShieldAPI(url),
+            this.checkURLVoidAPI(url),
             // this.checkGoogleSafeBrowsingAPI(url),
             // this.checkPhishTankAPI(url),
             // this.checkURLhausAPI(url),
-            this.checkURLVoidAPI(url),
         ]);
 
         return result.some((r) => r === true);
     }
 
+    // check LinkShield API
     async checkLinkShieldAPI(url: string) {
         const base_url = new URL("https://linkshieldapi.com/api/v1/link/score");
 
@@ -98,7 +103,7 @@ export class UrlService {
 
             const data = await response.json();
 
-            // console.log(JSON.stringify(data, null, 2));
+            console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.risk_score > 70 || data.security_checks.domain_flagged || data.security_checks.url_flagged || data.security_checks.ai_flagged;
 
@@ -109,19 +114,11 @@ export class UrlService {
         }
     }
 
-    async checkGoogleSafeBrowsingAPI(url: string) { }
-
-    async checkPhishTankAPI(url: string) { }
-
-    async checkURLhausAPI(url: string) { }
-
+    // check URLVoid API
     async checkURLVoidAPI(url: string) {
-
         const base_url = new URL("https://endpoint.apivoid.com/urlrep/v1/pay-as-you-go/");
         base_url.searchParams.append("key", process.env.URL_VOID_API_KEY);
         base_url.searchParams.append("url", url);
-
-        // console.log(base_url);
 
         try {
             const response = await fetch(base_url);
@@ -148,17 +145,17 @@ export class UrlService {
             data.data.report.security_checks.is_masked_file ||
             data.data.report.security_checks.is_suspicious_content;
 
-
-            // return {
-            //     isMalicious: isMalicious,
-            //     type: null,
-            // }
-
             return isMalicious;
         } catch (error) {
             this.logger.error(`Error in checking URLVoid API: ${error}`);
             throw error;
         }
     }
+
+    async checkGoogleSafeBrowsingAPI(url: string) { }
+
+    async checkPhishTankAPI(url: string) { }
+
+    async checkURLhausAPI(url: string) { }
 
 }
