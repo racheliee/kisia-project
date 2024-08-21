@@ -66,7 +66,7 @@ export class UrlService {
     async checkExternalApis(url: string) {
         const result = await Promise.all([
             this.checkLinkShieldAPI(url),
-            this.checkURLVoidAPI(url),
+            // this.checkURLVoidAPI(url),
             // this.checkGoogleSafeBrowsingAPI(url),
             // this.checkPhishTankAPI(url),
             // this.checkURLhausAPI(url),
@@ -107,7 +107,7 @@ export class UrlService {
             // console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.risk_score > 70 || data.security_checks.domain_flagged || data.security_checks.url_flagged; // || data.security_checks.ai_flagged;
-
+            this.logger.log(`LinkShield API result: ${isMalicious}`);
             return isMalicious;
         } catch (error) {
             this.logger.error(`Error in checking LinkShield API: ${error}`);
@@ -131,12 +131,17 @@ export class UrlService {
 
             const data = await response.json();
 
+            if('error' in data) {
+                this.logger.error(`Error in checking URLVoid API: ${data.error.message}`);
+                return false;
+            }
+
             if (data.success === false) {
                 this.logger.error(`Error in checking URLVoid API: ${data.message}`);
                 return false;
             }
 
-            console.log(JSON.stringify(data, null, 2));
+            // console.log(JSON.stringify(data, null, 2));
 
             const isMalicious = data.data.report.risk_score.result > 70 ||
             data.data.report.domain_blacklist.detections > 0 ||
@@ -147,6 +152,8 @@ export class UrlService {
             data.data.report.security_checks.is_risky_geo_location ||
             data.data.report.security_checks.is_masked_file ||
             data.data.report.security_checks.is_suspicious_content;
+
+            this.logger.log(`URLVoid API result: ${isMalicious}`);
 
             return isMalicious;
         } catch (error) {
