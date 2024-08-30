@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  extension:
+    # image: ${DOCKER_USERNAME}/kisia-project-backend:extension
+    container_name: extension
+    build:
+      context: extension/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./src:/usr/src/app/src  # Only mount the source code directory
+      - ./prisma:/usr/src/app/prisma  # Only mount the Prisma schema directory
+    env_file:
+      - extension/.env
+    networks:
+      - app-network
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  ai:
+    # image: ${DOCKER_USERNAME}/kisia-project-backend:ai
+    build:
+      context: AI/
+    container_name: ai
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+networks:  # Define the network to be used by the services
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:  # Define the volume to be used by the database service

@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Simple Popup Extension",
+  "version": "1.0",
+  "description": "A simple popup for Chrome extension.",
+  "permissions": ["activeTab"],
+  "action": {
+    "default_popup": "index.html"
+  }
+}
