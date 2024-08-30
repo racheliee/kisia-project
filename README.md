@@ -32,5 +32,5 @@
   - Universit of Maribor malicious url dataset
 
 ### Demo
-- [율스 악성 URL 탐지 서비스 탐지 시연 영상](./assets/미탐지.mov)
-- [율스 악성 URL 탐지 서비스 미탐지 시연 영상](./assets/탐지.mov)
+- [율스 악성 URL 탐지 서비스 탐지 시연 영상](https://drive.google.com/file/d/1MR6lOnnYuWg-IO3W-muJ0djdQdglDErT/view?usp=drive_link)
+- [율스 악성 URL 탐지 서비스 미탐지 시연 영상](https://drive.google.com/file/d/1UIsQsFgGIL_0CFuzHnU2InUrbaD2Cp_s/view?usp=sharing)
