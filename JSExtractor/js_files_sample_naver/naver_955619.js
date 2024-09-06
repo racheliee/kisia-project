@@ -1,1 +1,0 @@
-window.ntm=window.ntm||[]
