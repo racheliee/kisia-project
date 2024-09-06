@@ -5,10 +5,12 @@ import random
 import os
 import sys
 import subprocess
+from datetime import datetime
 
-def generate_filename(base_name):
-    random_number = random.randint(100000, 999999)
-    return f"{base_name}_{random_number}.js"
+def generate_filename():
+    current_time = datetime.now().strftime("%Y%m%d%H%M%S")
+    random_number = random.randint(10000000, 99999999)
+    return f"{current_time}_{random_number}.js"
 
 def formatting_with_prettier(filepath):
     try:
@@ -16,8 +18,8 @@ def formatting_with_prettier(filepath):
     except subprocess.CalledProcessError:
         print(f"Prettier error in {filepath}")
 
-def save_js_content(content, directory, base_name):
-    filename = generate_filename(base_name)
+def save_js_content(content, directory):
+    filename = generate_filename()
     filepath = os.path.join(directory, filename)
     
     with open(filepath, 'w', encoding='utf-8') as f:
@@ -30,8 +32,6 @@ def save_js_content(content, directory, base_name):
 def scrape_and_save_js_files(url, directory="js_files"):
     if not os.path.exists(directory):
         os.makedirs(directory)
-    
-    base_name = urlparse(url).netloc.split('.')[0]
 
     try:
         response = requests.get(url)
@@ -45,14 +45,14 @@ def scrape_and_save_js_files(url, directory="js_files"):
     for script in soup.find_all('script'):
         if script.string:
             js_code = script.string
-            filepath = save_js_content(js_code, directory, base_name)
+            filepath = save_js_content(js_code, directory)
             print(f"{url} -> {filepath}")
         elif script.get('src'):
             src_url = urljoin(url, script['src'])
             try:
                 js_response = requests.get(src_url)
                 js_response.raise_for_status()
-                filepath = save_js_content(js_response.text, directory, base_name)
+                filepath = save_js_content(js_response.text, directory)
                 print(f"{src_url} -> {filepath}")
             except requests.exceptions.RequestException:
                 print(f"Error from {src_url}")
