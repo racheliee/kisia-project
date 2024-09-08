@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { WebRiskServiceClient, protos } from '@google-cloud/web-risk';
 
 @Injectable()
 export class UrlService {
   private readonly logger = new Logger(UrlService.name);
-
+  private readonly webriskServiceClient = new WebRiskServiceClient({
+    apiKey: process.env.GOOGLE_WEB_RISK_API_KEY,
+  });
   constructor(private readonly prismaService: PrismaService) {}
 
   // Process URL (check with db and API)==============================================
@@ -53,23 +56,21 @@ export class UrlService {
 
   // Save to database =============================================================
   async saveToDatabase(url: string, isMalicious: boolean) {
-    const result = await this.prismaService.url.create({
+    return await this.prismaService.url.create({
       data: {
         url: url,
         isMalicious: isMalicious,
         accessCount: 1,
       },
     });
-
-    return result;
   }
 
   // Checking external APIs =======================================================
   async checkExternalApis(url: string) {
     const result = await Promise.all([
-      this.checkLinkShieldAPI(url),
+      // this.checkLinkShieldAPI(url),
       // this.checkURLVoidAPI(url),
-      // this.checkGoogleSafeBrowsingAPI(url),
+      this.checkGoogleWebRiskAPI(url),
       // this.checkPhishTankAPI(url),
       // this.checkURLhausAPI(url),
     ]);
@@ -178,7 +179,28 @@ export class UrlService {
     }
   }
 
-  async checkGoogleSafeBrowsingAPI(url: string) {}
+  async checkGoogleWebRiskAPI(url: string) {
+    try {
+      const request = {
+        uri: url,
+        threatTypes: [
+          protos.google.cloud.webrisk.v1.ThreatType.MALWARE,
+          protos.google.cloud.webrisk.v1.ThreatType.SOCIAL_ENGINEERING,
+          protos.google.cloud.webrisk.v1.ThreatType.UNWANTED_SOFTWARE,
+        ],
+      };
+      const { threat } = (
+        await this.webriskServiceClient.searchUris(request)
+      )[0];
+
+      this.logger.log(`Google Web Risk API result: ${threat}`);
+
+      return !!threat; // if threat is found, return true
+    } catch (error) {
+      this.logger.error(`Error in checking Google Web Risk API: ${error}`);
+      throw error;
+    }
+  }
 
   async checkPhishTankAPI(url: string) {}
 
