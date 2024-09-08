@@ -8,6 +8,12 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
+    curl \
+    && apt-get clean
+
+#install node.js and npm from NodeSource
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
     && apt-get clean
 
 # install python dependencies
@@ -15,13 +21,7 @@ COPY requirements.txt ./
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-#install node dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    && apt-get clean
-RUN sudo apt-get install -y nodejs
-RUN sudo apt-get install -y npm
-
+# Install Node.js dependencies
 COPY package*.json ./
 RUN npm install
 
