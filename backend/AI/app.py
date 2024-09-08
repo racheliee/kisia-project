@@ -44,14 +44,12 @@ def run_url_model(url):
     return url_model.predict([url])
 
 def run_static_model():
-    path = js_base_path + js_path
-    logging.info(f"Path: {path}")
+    path = f"{base_folder}/{js_storage_path}/{js_path}/"
     js_list = os.listdir(path) # returns list of js files in the folder
     entire_js_script = []
     
     for file in js_list:
-        logging.info(f"Reading file: {file}")
-
+        # logging.info(f"Reading file: {file}")
         with open(path + file, 'r') as f:
             entire_js_script.append(f.read())
     
@@ -85,8 +83,11 @@ def process_url():
     try:
         extract_js_files(url) # js script extraction
         urlres = run_url_model(url)
-        # staticres = run_static_model()
+        staticres = run_static_model()
         # dynamicres = url_model.check_dynamic()
+        
+        logging.info(f"URL result: {urlres}")
+        logging.info(f"Static result: {staticres}")
         
         # final_res = urlres and staticres
         
@@ -107,7 +108,5 @@ def process_url():
         }), 500
 
 
-
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080)
