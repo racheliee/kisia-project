@@ -15,6 +15,16 @@ COPY requirements.txt ./
 RUN pip3 install --upgrade pip
 RUN pip3 install --no-cache-dir -r requirements.txt
 
+#install node dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && apt-get clean
+RUN sudo apt-get install -y nodejs
+RUN sudo apt-get install -y npm
+
+COPY package*.json ./
+RUN npm install
+
 # copy the rest of the application code
 COPY . .
 
