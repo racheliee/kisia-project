@@ -50,3 +50,5 @@ jobs:
             docker run -d --log-driver=syslog -p 8080:8080 --network app-network --env-file .env --name ai ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:ai
             echo "AI docker image has been deployed successfully."
             docker image prune -a -f
+
+            
