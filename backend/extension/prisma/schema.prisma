@@ -13,13 +13,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserTypes {
+  ADMIN
+  STANDARD_USER
+  PREMIUM_USER
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
   password  String
-  email     String   @unique
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
+  email     String    @unique
+  type      UserTypes @default(STANDARD_USER)
+  createdAt DateTime  @default(now())
 
   // many-to-many relation with Url
   urlsAccessed UserUrl[]
