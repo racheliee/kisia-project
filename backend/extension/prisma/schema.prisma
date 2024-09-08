@@ -13,11 +13,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  email     String   @unique
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // many-to-many relation with Url
+  urlsAccessed UserUrl[]
+}
+
 model Url {
-  id          Int     @id @default(autoincrement())
-  url         String  @unique
+  id          Int      @id @default(autoincrement())
+  url         String   @unique
   isMalicious Boolean
-  accessCount Int @default(0)     // number of times this url has been asked for verification
+  accessCount Int      @default(0) // number of times this url has been asked for verification
+  numFeedback Int      @default(0) // number of feedbacks received (used to count false positives and negatives)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // many-to-many relation with User
+  users UserUrl[]
+}
+
+model UserUrl {
+  userId     Int
+  urlId      Int
+  accessedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  url  Url  @relation(fields: [urlId], references: [id])
+
+  @@id([userId, urlId]) // composite primary key (avoid duplicate entries)Ò
 }
