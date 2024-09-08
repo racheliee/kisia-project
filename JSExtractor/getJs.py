@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 import random
 import os
 import sys
@@ -11,6 +11,12 @@ def generate_filename():
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
     random_number = random.randint(10000000, 99999999)
     return f"{current_time}_{random_number}.js"
+
+
+def generate_foldername():
+    current_time = datetime.now().strftime("%Y%m%d%H%M%S")
+    random_number = random.randint(10000000, 99999999)
+    return f"{current_time}_{random_number}"
 
 def formatting_with_prettier(filepath):
     try:
@@ -60,6 +66,6 @@ def scrape_and_save_js_files(url, directory="js_files"):
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         url = sys.argv[1]
-        scrape_and_save_js_files(url)
+        scrape_and_save_js_files(url, generate_foldername())
     else:
         print("Usage: python [filename].py [URL]")
