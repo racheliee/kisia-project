@@ -1,0 +1,9 @@
+torch
+transformers
+onnxruntime
+
+fasttext
+esprima
+numpy==1.23
+
+flask
