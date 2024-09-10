@@ -4,6 +4,7 @@ from modules.static_model import detector as sm
 from modules.dynamic_model import detector as dm
 import modules.getJs as jsextractor
 import logging
+import colorlog
 from dotenv import load_dotenv
 from flask_cors import CORS
 import os
@@ -14,7 +15,24 @@ load_dotenv()  # Load environment variables
 app = Flask(__name__)
 cors = CORS(app)
 
-logging.basicConfig(level=logging.DEBUG)
+# Logging =======================================================
+app_handler = colorlog.StreamHandler()
+app_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s[Flask app %(asctime)s]%(reset)s: %(message)s",
+    datefmt="%H:%M:%S",
+    log_colors={
+        'INFO': 'cyan',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'DEBUG': 'cyan',
+    }
+)
+app_handler.setFormatter(app_formatter)
+app_logger = logging.getLogger('app_logger')
+app_logger.addHandler(app_handler)
+app_logger.setLevel(logging.DEBUG)
+app_logger.propagate = False  #to prevent double messages
+
 
 # Load models ====================================================
 url_model_path = './modules/url_model/model-q.onnx'
@@ -42,11 +60,9 @@ def extract_js_files(url):
     global js_path
     js_path = jsextractor.generate_foldername() # warning: may have concurrency issues
     jsextractor.scrape_and_save_js_files(url, f"{base_folder}/{js_storage_path}/{js_path}/") # send abs path
-    logging.info(f"[JS Extraction]: Extracted js files from {url}")
 
 # run url-based model
 def run_url_model(url):
-    logging.info(f"[URL Model]: Running url model on {url}")
     return url_model.predict([url])
 
 # run static model
@@ -60,7 +76,6 @@ def run_static_model():
         with open(path + file, 'r') as f:
             entire_js_script.append(f.read())
     
-    logging.info(f"[Static Model]: Running static model on {len(entire_js_script)} js files")
     return static_model.predict(entire_js_script)
 
 # run dynamic model
@@ -86,7 +101,7 @@ def process_url():
             "message": "No URL provided"
         })
 
-    logging.info(f"Checking URL: {url}")
+    app_logger.info(f"Checking URL: {url}")
     
     try:
         extract_js_files(url) # js script extraction
@@ -94,9 +109,9 @@ def process_url():
         staticres = run_static_model()
         dynamicres = run_dynamic_model()
         
-        logging.info(f"URL result: {urlres}")
-        logging.info(f"Static result: {staticres}")
-        logging.info(f"Dynamic result: {dynamicres}")
+        app_logger.info(f"URL result: {urlres}")
+        app_logger.info(f"Static result: {staticres}")
+        app_logger.info(f"Dynamic result: {dynamicres}")
         
         # final_res = urlres and staticres
         
@@ -110,7 +125,7 @@ def process_url():
             }
         }), 200
     except Exception as e:
-        logging.error(f"Error checking url: {e}")
+        app_logger.error(f"Error checking url: {e}")
         return jsonify({
             "statusCode": 500,
             "message": "Internal server error"

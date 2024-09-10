@@ -7,14 +7,32 @@ import sys
 import subprocess
 from datetime import datetime
 import logging
+import colorlog
 from typing import Final
 
+# Configure logger for JS Scraper (Yellow)
+js_scraper_handler = colorlog.StreamHandler()
+js_scraper_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s[Extracting JS]%(reset)s: %(message)s",
+    log_colors={
+        'INFO': 'cyan',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'DEBUG': 'cyan',
+    }
+)
+js_scraper_handler.setFormatter(js_scraper_formatter)
+js_scraper_logger = colorlog.getLogger('js_scraper_logger')
+js_scraper_logger.addHandler(js_scraper_handler)
+js_scraper_logger.setLevel(logging.DEBUG)
+js_scraper_logger.propagate = False  #to prevent double messages
+
 cwd: Final[str] = os.getcwd()
-logging.basicConfig(level=logging.DEBUG)
 
 def generate_foldername():
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
     random_number = random.randint(10000000, 99999999)
+    js_scraper_logger.info(f"Generated folder name: {current_time}_{random_number}")
     return f"{current_time}_{random_number}"
 
 
@@ -28,7 +46,7 @@ def formatting_with_prettier(filepath):
         subprocess.run(['npx', '-p', 'node@14', 'prettier', '--write', filepath], check=True)
         os.chdir(cwd)  # return to the original directory
     except subprocess.CalledProcessError:
-        logging.error(f"Prettier error in {filepath}")
+        js_scraper_logger.error(f"Prettier error in {filepath}")
         os.chdir(cwd)  # return to the original directory
 
 # helper function to save js content to a file
@@ -49,7 +67,7 @@ def save_js_content(content, directory, count):
 # scrape the js files from the given url and save them to the directory
 # receives absolute path of the directory to save the js files
 def scrape_and_save_js_files(url, directory="../js_script_files/js_files"):
-    logging.info(f"Scraping {url} and saving js files to {directory}")
+    js_scraper_logger.info(f"Scraping {url} and saving js files to {directory}")
 
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -58,7 +76,7 @@ def scrape_and_save_js_files(url, directory="../js_script_files/js_files"):
         response = requests.get(url)
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        logging.error("URL is not valid.")
+        js_scraper_logger.error("URL is not valid.")
         return
 
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -79,15 +97,16 @@ def scrape_and_save_js_files(url, directory="../js_script_files/js_files"):
                 # logging.info(f"{src_url} -> {filepath}")
                 count += 1
             except requests.exceptions.RequestException:
-                logging.error(f"Error from {src_url}")
+                js_scraper_logger.error(f"Error from {src_url}")
                 
-    logging.info(f"[JS Extraction]: Extracted {count} js files from {url}")
+    js_scraper_logger.info(f"Extracted {count} js files from {url}")
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         url = sys.argv[1]
+        js_scraper_logger.info(f"Scraping JS files from {url}")
         foldername = generate_foldername()
         scrape_and_save_js_files(url, foldername)
     else:
-        logging.warning("Usage: python [filename].py [URL]")
+        js_scraper_logger.warning("Usage: python [filename].py [URL]")

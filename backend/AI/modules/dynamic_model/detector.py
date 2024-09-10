@@ -5,18 +5,30 @@ import pandas as pd
 import logging
 import colorlog
 
-logging.basicConfig(level=logging.DEBUG)
-
+# Configure logger for Dynamic Model (Blue)
+dynamic_handler = colorlog.StreamHandler()
+dynamic_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s[Dynamic Model]%(reset)s: %(message)s",
+    log_colors={
+        'INFO': 'blue',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'DEBUG': 'cyan',
+    }
+)
+dynamic_handler.setFormatter(dynamic_formatter)
+dynamic_logger = colorlog.getLogger('dynamic_logger')
+dynamic_logger.addHandler(dynamic_handler)
+dynamic_logger.setLevel(logging.DEBUG)
+dynamic_logger.propagate = False  #to prevent double messages
 
 class DynamicDetector:
     def __init__(self, model_path):
         try:
             self.model = joblib.load(model_path)
-            logging.info(
-                f"[Dynamic Model]: Model successfully loaded from {model_path}")
+            dynamic_logger.info(f"Model successfully loaded from {model_path}")
         except FileNotFoundError:
-            logging.error(
-                f"[Dynamic Model]: Model file not found: {model_path}")
+            dynamic_logger.error(f"Model file not found: {model_path}")
             return
 
     # 분석할 폴더 경로 설정
@@ -33,7 +45,7 @@ class DynamicDetector:
         for file in self.files:  # 파일을 하나씩 분석하고 에러를 처리
             if file.endswith(".js"):  # JavaScript 파일만 분석
                 file_path = os.path.join(self.folder_path, file)
-                logging.info(f"[Dynamic Model]: Analyzing {file_path}...")
+                dynamic_logger.info(f"Analyzing {file_path}...")
 
                 full_jalangi_path = os.path.join(
                     base_folder_path, jalangi_path)  # full path to jalangi2
@@ -47,18 +59,18 @@ class DynamicDetector:
 
                 # 에러 발생 시 에러 메시지 저장
                 if result.returncode != 0:
-                    logging.error(f"[Dynamic Model]: Error analyzing {file_path}")
+                    dynamic_logger.error(f"Error analyzing {file_path}")
                 else:
-                    logging.info(f"[Dynamic Model]: {file_path} analyzed successfully!")
+                    dynamic_logger.info(f"{file_path} analyzed successfully!")
 
     def __predict(self):
         # CSV 파일을 불러오기
         try:
             csv_path = "./analysis_results.csv"  # csv file created in the main folder
             df = pd.read_csv(csv_path)
-            logging.info(f"[Dynamic Model]: CSV file loaded successfully: {csv_path}")
+            dynamic_logger.info(f"CSV file loaded successfully: {csv_path}")
         except FileNotFoundError:
-            logging.error(f"[Dynamic Model]: CSV file not found: {csv_path}")
+            dynamic_logger.error(f"CSV file not found: {csv_path}")
             return []
 
         # 모델로 파일명을 분석하여 예측 수행
@@ -89,7 +101,7 @@ class DynamicDetector:
             os.remove(file_path)
 
         os.remove("./analysis_results.csv") # remove the csv file
-        logging.info("[Dynamic Model]: Files deleted successfully!")
+        dynamic_logger.info("Files deleted successfully!")
 
     # js_files is the default name mentioned in getJs.py
     def predict(self, filename="js_files", base_folder_path="backend/AI", js_folder_path="backend/AI/js_script_files", jalangi_path="node_modules/jalangi2/src/js/commands/jalangi.js"):

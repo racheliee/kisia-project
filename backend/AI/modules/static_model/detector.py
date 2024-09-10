@@ -1,9 +1,33 @@
 import fasttext
 import esprima
+import logging
+import colorlog
+
+# Configure logger for Static Model (Green)
+static_handler = colorlog.StreamHandler()
+static_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s[Static Model]%(reset)s: %(message)s",
+    log_colors={
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'DEBUG': 'cyan',
+    }
+)
+static_handler.setFormatter(static_formatter)
+static_logger = colorlog.getLogger('static_logger')
+static_logger.addHandler(static_handler)
+static_logger.setLevel(logging.DEBUG)
+static_logger.propagate = False  #to prevent double messages
 
 class StaticDetector:
   def __init__(self, model_path):
-    self.model = fasttext.load_model(model_path)
+    try:
+      self.model = fasttext.load_model(model_path)
+      static_logger.info(f"Model successfully loaded from {model_path}")
+    except FileNotFoundError:
+      static_logger.error(f"Model file not found: {model_path}")
+      return
     
   def __parse(self, script):
     try:
@@ -50,6 +74,7 @@ class StaticDetector:
     }
   
   def predict(self, scripts):
+    static_logger.info(f"Running static model on {len(scripts)} js files")
     preds = []
     for script in scripts:
       pred = self.__predict(script)
