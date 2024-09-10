@@ -25,7 +25,7 @@ def formatting_with_prettier(filepath):
 
     try:
         # logging.info(f"Formatting {filepath} with Prettier")
-        subprocess.run(['npx', 'prettier', '--write', filepath], check=True)
+        subprocess.run(['npx', '-p', 'node@14', 'prettier', '--write', filepath], check=True)
         os.chdir(cwd)  # return to the original directory
     except subprocess.CalledProcessError:
         logging.error(f"Prettier error in {filepath}")
@@ -80,6 +80,8 @@ def scrape_and_save_js_files(url, directory="../js_script_files/js_files"):
                 count += 1
             except requests.exceptions.RequestException:
                 logging.error(f"Error from {src_url}")
+                
+    logging.info(f"[JS Extraction]: Extracted {count} js files from {url}")
 
 
 if __name__ == "__main__":
