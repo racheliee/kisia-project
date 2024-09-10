@@ -1,5 +1,7 @@
 {
-  "devDependencies": {
+  "dependencies": {
+    "jalangi2": "^0.2.6",
+    "jsdom": "^16.7.0",
     "prettier": "^3.3.3"
   }
 }

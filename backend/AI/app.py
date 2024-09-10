@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from modules.url_model import detector as um
 from modules.static_model import detector as sm
+from modules.dynamic_model import detector as dm
 import modules.getJs as jsextractor
 import logging
 from dotenv import load_dotenv
@@ -19,9 +20,12 @@ logging.basicConfig(level=logging.DEBUG)
 url_model_path = './modules/url_model/model-q.onnx'
 url_tokenizer_path = './modules/url_model/tokenizer'
 static_model_path = './modules/static_model/static-model.bin'
+dynamic_model_path = './modules/dynamic_model/model_dynamic.pkl'
+jalangi_path = 'node_modules/jalangi2/src/js/commands/jalangi.js'
 
 url_model = um.URLDetector(url_model_path, url_tokenizer_path)
 static_model = sm.StaticDetector(static_model_path)
+dynamic_model = dm.DynamicDetector(dynamic_model_path)
 
 # create folder to store js files =================================
 js_storage_path = "js_script_files" # where all the js files are stored
@@ -38,11 +42,14 @@ def extract_js_files(url):
     global js_path
     js_path = jsextractor.generate_foldername() # warning: may have concurrency issues
     jsextractor.scrape_and_save_js_files(url, f"{base_folder}/{js_storage_path}/{js_path}/") # send abs path
+    logging.info(f"[JS Extraction]: Extracted js files from {url}")
 
 # run url-based model
 def run_url_model(url):
+    logging.info(f"[URL Model]: Running url model on {url}")
     return url_model.predict([url])
 
+# run static model
 def run_static_model():
     path = f"{base_folder}/{js_storage_path}/{js_path}/"
     js_list = os.listdir(path) # returns list of js files in the folder
@@ -53,11 +60,12 @@ def run_static_model():
         with open(path + file, 'r') as f:
             entire_js_script.append(f.read())
     
-    logging.info(f"Running static model on {len(entire_js_script)} js files")
+    logging.info(f"[Static Model]: Running static model on {len(entire_js_script)} js files")
     return static_model.predict(entire_js_script)
 
+# run dynamic model
 def run_dynamic_model():
-    pass
+    return dynamic_model.predict(js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
     
 # endpoint for url ai-check ======================================
 @app.route('/url/ai', methods=['POST'])
@@ -84,10 +92,11 @@ def process_url():
         extract_js_files(url) # js script extraction
         urlres = run_url_model(url)
         staticres = run_static_model()
-        # dynamicres = url_model.check_dynamic()
+        dynamicres = run_dynamic_model()
         
         logging.info(f"URL result: {urlres}")
         logging.info(f"Static result: {staticres}")
+        logging.info(f"Dynamic result: {dynamicres}")
         
         # final_res = urlres and staticres
         

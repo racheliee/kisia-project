@@ -4,3 +4,5 @@ modules/__pycache__/
 .env
 node_modules/
 js_script_files/
+modules/dynamic_model/__pycache__/
+modules/dynamic_model/node_modules/
