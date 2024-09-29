@@ -19,38 +19,51 @@ enum UserTypes {
   PREMIUM_USER
 }
 
+enum DETECTOR {
+  DATABASE
+  API
+  AI_MODEL
+}
+
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique
-  password  String
-  email     String    @unique
-  type      UserTypes @default(STANDARD_USER)
-  createdAt DateTime  @default(now())
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  password      String // hashed password
+  email         String    @unique
+  type          UserTypes @default(STANDARD_USER)
+  expiration    DateTime? // expiration date for premium users
+  dailyRequests Int       @default(0) // number of requests made by the user in a day; resets at 00:00
+  requestsLimit Int       @default(3) // number of requests allowed per day for free users
+  lastLogin     DateTime? // last login time
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // many-to-many relation with Url
-  urlsAccessed UserUrl[]
+  urlsAccessed History[]
 }
 
 model Url {
-  id          Int      @id @default(autoincrement())
-  url         String   @unique
-  isMalicious Boolean
-  accessCount Int      @default(0) // number of times this url has been asked for verification
-  numFeedback Int      @default(0) // number of feedbacks received (used to count false positives and negatives)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  url              String   @unique
+  isMalicious      Boolean
+  accessCount      Int      @default(0) // number of times this url has been asked for verification
+  detectedBy       DETECTOR @default(DATABASE)
+  falsePos         Int      @default(0) // number of times it was reported as a false positives
+  confidenceScore Float? // used with ai models
+  numFeedback      Int      @default(0) // number of feedbacks received (used to count false positives and negatives)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // many-to-many relation with User
-  users UserUrl[]
+  users History[]
 }
 
-model UserUrl {
+model History {
+  id         Int      @id @default(autoincrement())
   userId     Int
   urlId      Int
   accessedAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
   url  Url  @relation(fields: [urlId], references: [id])
-
-  @@id([userId, urlId]) // composite primary key (avoid duplicate entries)Ò
 }
