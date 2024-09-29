@@ -67,3 +67,11 @@ model History {
   user User @relation(fields: [userId], references: [id])
   url  Url  @relation(fields: [urlId], references: [id])
 }
+
+model Announcements{
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
