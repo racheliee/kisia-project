@@ -6,8 +6,8 @@
 - 프로젝트: 악성 URL 탐지 서비스 (Chrome Extension)
 - 발표자료: [율스 악성 URL 탐지 서비스 발표자료](./assets/kisia%20hackathon%20발표자료.pdf)
 
-<img src="./frontend/icon.png" width="100">
-<img src="./frontend/image/text-logo.png" width="100">
+<img src="./extension/icon.png" width="100">
+<img src="./extension/image/text-logo.png" width="100">
 
 ### 기능
 1. Database Check
