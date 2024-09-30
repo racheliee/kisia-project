@@ -42,14 +42,14 @@ model User {
 }
 
 model Url {
-  id              String   @id @default(uuid())
+  id              Int      @id @default(autoincrement())
   url             String   @unique
   isMalicious     Boolean
   detectedBy      DETECTOR @default(DATABASE)
   urlResult       Boolean? // url model result
   staticResult    Boolean? // static model result
   dynamicResult   Boolean? // dynamic model result
-  accessCount     Int      @default(0) // number of times this url has been asked for verification
+  accessCount     Int      @default(1) // number of times this url has been asked for verification
   falsePos        Int      @default(0) // number of times it was reported as a false positives
   falseNeg        Int      @default(0) // number of times it was reported as a false negatives
   confidenceScore Float? // used with ai models
