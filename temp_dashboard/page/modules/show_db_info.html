@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DB Overview</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        text-align: center;
+      }
+      h2 {
+        margin-bottom: 20px;
+      }
+      .overview-container {
+        margin-bottom: 40px;
+      }
+      canvas {
+        max-width: 700px;
+        margin: 40px auto;
+        height: 300px;
+      }
+      .button-container {
+        margin-bottom: 20px;
+      }
+      .button-container button {
+        padding: 10px 15px;
+        margin: 5px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .button-container button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h2>Database Overview</h2>
+
+    <!-- 총 URL 갯수 표시 -->
+    <div class="overview-container">
+      <h3>Total URLs in Database: <span id="totalUrls"></span></h3>
+    </div>
+
+    <!-- DB 크기 월별 선 그래프 -->
+    <h2>DB Size (Monthly)</h2>
+    <canvas id="dbSizeChart"></canvas>
+
+    <!-- URL 검사 갯수 선택 버튼 -->
+    <h2>URL Verifications</h2>
+    <div class="button-container">
+      <button onclick="showGraph('daily')">Daily</button>
+      <button onclick="showGraph('weekly')">Weekly</button>
+      <button onclick="showGraph('monthly')">Monthly</button>
+    </div>
+    <canvas id="verificationChart"></canvas>
+
+    <script>
+      // 총 URL 갯수 데이터
+      const totalUrls = 1500; // 임의의 총 URL 갯수 (실제 DB와 연동 시 업데이트)
+      document.getElementById('totalUrls').textContent = totalUrls;
+
+      // DB 크기 월별 데이터 (임의의 예시)
+      const dbSizeMonthlyData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        datasets: [{
+          label: 'DB Size (MB)',
+          data: [100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650], // 예시 데이터 (MB)
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true
+        }]
+      };
+
+      const dbSizeConfig = {
+        type: 'line', // 선 그래프 설정
+        data: dbSizeMonthlyData,
+        options: {
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      };
+
+      new Chart(document.getElementById("dbSizeChart"), dbSizeConfig);
+
+      // URL 검사 갯수 데이터
+      const dailyData = {
+        labels: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        datasets: [{
+          label: 'Daily Verifications',
+          data: [15, 30, 25, 40, 35, 20, 45], // 예시 데이터
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      const weeklyData = {
+        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+        datasets: [{
+          label: 'Weekly Verifications',
+          data: [120, 200, 150, 300], // 예시 데이터
+          backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      const monthlyData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        datasets: [{
+          label: 'Monthly Verifications',
+          data: [400, 600, 550, 700, 800, 750, 900, 850, 1000, 950, 1100, 1200], // 예시 데이터
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      let currentVerificationChart;
+
+      function showGraph(type) {
+        if (currentVerificationChart) {
+          currentVerificationChart.destroy(); // 기존 그래프 삭제
+        }
+
+        const ctx = document.getElementById("verificationChart").getContext("2d");
+        let config;
+
+        if (type === 'daily') {
+          config = {
+            type: 'bar',
+            data: dailyData,
+            options: {
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+        } else if (type === 'weekly') {
+          config = {
+            type: 'bar',
+            data: weeklyData,
+            options: {
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+        } else if (type === 'monthly') {
+          config = {
+            type: 'bar',
+            data: monthlyData,
+            options: {
+              scales: {
+                y: { beginAtZero: true }
+              }
+            }
+          };
+        }
+
+        currentVerificationChart = new Chart(ctx, config);
+      }
+
+      // 초기 URL 검증 그래프는 Daily로 표시
+      showGraph('daily');
+    </script>
+  </body>
+</html>

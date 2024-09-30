@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+    h1 {
+      margin: 20px;
+    }
+    iframe {
+      width: 100%;      /* 가로 100%로 설정 */
+      border: 1px solid #ccc;
+      margin-bottom: 20px;  /* 각 iframe 사이에 여백을 추가 */
+    }
+  </style>
+  <script>
+    function resizeIframe(iframe) {
+      iframe.style.height = iframe.contentWindow.document.documentElement.scrollHeight + 'px';
+    }
+  </script>
+</head>
+<body>
+  <h1>추후 모듈 통합</h1>
+
+  <iframe src="/page/modules/show_url_and_urlInfo.html" frameborder="0" onload="resizeIframe(this)"></iframe>
+  <iframe src="/page/modules/show_db_info.html" frameborder="0" onload="resizeIframe(this)"></iframe>
+  <iframe src="/page/modules/show_request_info.html" frameborder="0" onload="resizeIframe(this)"></iframe>
+  <iframe src="/page/modules/show_top5.html" frameborder="0" onload="resizeIframe(this)"></iframe>
+
+</body>
+</html>

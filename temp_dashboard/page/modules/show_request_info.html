@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monthly Request Graph</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        text-align: center;
+      }
+      canvas {
+        max-width: 900px; /* 그래프 크기 키움 */
+        margin: 40px auto;
+        height: 500px; /* 그래프 높이 조정 */
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h2>Total and AI Request Counts (Last 6 Months)</h2>
+    <canvas id="requestChart"></canvas>
+
+    <script>
+      // 전체 월 이름과 데이터
+      const allMonths = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+      // 전체 데이터 (각 월별 데이터, 필요시 수정 가능)
+      const totalRequests = [50, 80, 60, 40, 70, 90, 100, 120, 80, 60, 70, 50]; // DB에서 가져오기
+      const aiRequests = [30, 40, 35, 20, 50, 60, 70, 80, 40, 30, 50, 20];
+
+      // 오늘 날짜를 기준으로 현재 월을 제외한 최근 6개월을 추출하는 함수
+      function getLastSixMonths() {
+        const today = new Date();
+        const currentMonth = today.getMonth(); // 현재 월 (0이 1월, 11이 12월)
+        const lastSixMonths = [];
+        const lastSixTotalRequests = [];
+        const lastSixAIRequests = [];
+
+        for (let i = 1; i <= 6; i++) {  // 현재 달을 제외하고 최근 6개월 추출
+          const monthIndex = (currentMonth - i + 12) % 12; // 역순으로 6개월을 추출
+          lastSixMonths.unshift(allMonths[monthIndex]);
+          lastSixTotalRequests.unshift(totalRequests[monthIndex]);
+          lastSixAIRequests.unshift(aiRequests[monthIndex]);
+        }
+
+        return {
+          months: lastSixMonths,
+          totalRequests: lastSixTotalRequests,
+          aiRequests: lastSixAIRequests,
+        };
+      }
+
+      // 차트를 생성하는 함수
+      function renderChart(months, totalRequests, aiRequests) {
+        const ctx = document.getElementById("requestChart").getContext("2d");
+
+        new Chart(ctx, {
+          type: "bar", // 막대 그래프
+          data: {
+            labels: months, // X축에 표시될 월
+            datasets: [
+              {
+                label: "Total Requests",
+                data: totalRequests, // 총 검사 요청 데이터
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+              },
+              {
+                label: "AI Requests",
+                data: aiRequests, // AI 검사 요청 데이터
+                backgroundColor: "rgba(255, 159, 64, 0.2)",
+                borderColor: "rgba(255, 159, 64, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true, // 반응형 설정
+            scales: {
+              y: {
+                beginAtZero: true, // Y축을 0부터 시작
+              },
+            },
+          },
+        });
+      }
+
+      // 페이지 로드 시 최근 6개월 데이터를 가져와 차트 렌더링
+      window.onload = function () {
+        const { months, totalRequests, aiRequests } = getLastSixMonths();
+        renderChart(months, totalRequests, aiRequests);
+      };
+    </script>
+  </body>
+</html>

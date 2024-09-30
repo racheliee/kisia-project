@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #1a1a1a;
+      }
+      .signup-container {
+        background-color: #333333;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+        width: 400px;
+        text-align: center;
+        color: #fff;
+      }
+      .logo {
+        margin-bottom: 15px;
+      }
+      .logo img {
+        max-width: 150px;
+        height: auto;
+      }
+      h2 {
+        margin-bottom: 15px;
+        font-size: 22px;
+        color: #ff5722;
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      .input-group label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #fff;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .input-group input:focus {
+        outline: none;
+        border-color: #ff5722;
+      }
+      .verify-email-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+      }
+      .verify-email-btn:hover {
+        background-color: #e64a19;
+      }
+      .email-verification {
+        display: none; /* 이메일 인증 필드는 처음에 숨겨둡니다 */
+        margin-top: 15px;
+      }
+      .submit-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+      }
+      .submit-btn:hover {
+        background-color: #e64a19;
+      }
+      .terms-group {
+        margin: 20px 0;
+        text-align: left;
+        color: #ff5722;
+        font-size: 14px;
+      }
+      .terms-group input {
+        margin-right: 10px;
+      }
+      .back-to-login {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #ff5722;
+      }
+      .back-to-login a {
+        color: #ff5722;
+        text-decoration: none;
+      }
+      .back-to-login a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      // 이메일 형식을 확인하는 함수
+      function isValidEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+      }
+
+      function sendVerificationCode() {
+        const email = document.getElementById("email").value;
+
+        // 이메일 형식 확인
+        if (!isValidEmail(email)) {
+          alert("Please enter a valid email address.");
+          return; // 이메일 형식이 맞지 않으면 함수 종료
+        }
+
+        // 이메일로 인증 번호 발송하는 기능을 구현 (백엔드 연동 필요)
+        alert("Verification code sent to your email!");
+
+        // 이메일 인증 번호 입력 필드를 보이게 설정
+        document.querySelector(".email-verification").style.display = "block";
+      }
+
+      function verifyCode() {
+        // 사용자가 입력한 인증 번호 확인 (백엔드 연동 필요)
+        const verificationCode = document.getElementById("verification-code").value;
+        if (verificationCode === "123456") {
+          alert("Email verified successfully!");
+        } else {
+          alert("Invalid verification code. Please try again.");
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="signup-container">
+      <div class="logo">
+        <img src="/static/images/logo.png" alt="Logo" />
+      </div>
+      <h2>Sign Up</h2>
+      <form>
+        <div class="input-group">
+          <label for="user-id">User ID</label>
+          <input type="text" id="user-id" placeholder="Enter your user ID" required />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required />
+        </div>
+        <div class="input-group">
+          <label for="password-check">Confirm Password</label>
+          <input
+            type="password"
+            id="password-check"
+            placeholder="Confirm your password"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required />
+        </div>
+        <button type="button" class="verify-email-btn" onclick="sendVerificationCode()">Send Verification Code</button>
+
+        <div class="email-verification">
+          <div class="input-group">
+            <label for="verification-code">Enter Verification Code</label>
+            <input
+              type="text"
+              id="verification-code"
+              placeholder="Enter the code sent to your email"
+              required
+            />
+          </div>
+          <button type="button" class="verify-email-btn" onclick="verifyCode()">Verify Code</button>
+        </div>
+
+        <div class="terms-group">
+          <input type="checkbox" id="terms" required />
+          <label for="terms">I agree to the <a href="#">terms and conditions</a></label>
+        </div>
+        <button type="submit" class="submit-btn">Sign Up</button>
+        <div class="back-to-login">
+          <a href="login.html">Back to login</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

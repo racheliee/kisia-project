@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TOP 5 Reports</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        padding: 20px;
+        text-align: center;
+      }
+      canvas {
+        max-width: 700px;
+        margin: 40px auto;
+        height: 300px;
+      }
+      h2 {
+        margin-bottom: 20px;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <h2>Access Count TOP 5</h2>
+    <canvas id="accessCountTop5"></canvas>
+
+    <h2>False Negative Report TOP 5 (Last 30 Days)</h2>
+    <canvas id="falseNegativeTop5"></canvas>
+
+    <h2>False Positive Report TOP 5 (Last 30 Days)</h2>
+    <canvas id="falsePositiveTop5"></canvas>
+
+    <script>
+      // Access Count TOP 5 (최근)
+      const accessCountTop5Data = {
+        labels: ["https://example1.com", "https://example2.com", "https://example3.com", "https://example4.com", "https://example5.com"],
+        datasets: [{
+          label: 'Access Count',
+          data: [150, 120, 110, 100, 90],
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      const accessCountTop5Config = {
+        type: 'bar',
+        data: accessCountTop5Data,
+        options: {
+          indexAxis: 'y', // 가로 막대 그래프 설정
+          scales: {
+            x: { beginAtZero: true }
+          }
+        }
+      };
+
+      new Chart(document.getElementById("accessCountTop5"), accessCountTop5Config);
+
+      // False Negative Report TOP 5 (최근 30일)
+      const falseNegativeTop5Data = {
+        labels: ["https://malicious1.com", "https://malicious2.com", "https://malicious3.com", "https://malicious4.com", "https://malicious5.com"],
+        datasets: [{
+          label: 'False Negative Count',
+          data: [5, 4, 3, 2, 1],
+          backgroundColor: 'rgba(255, 159, 64, 0.6)',
+          borderColor: 'rgba(255, 159, 64, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      const falseNegativeTop5Config = {
+        type: 'bar',
+        data: falseNegativeTop5Data,
+        options: {
+          indexAxis: 'y', // 가로 막대 그래프 설정
+          scales: {
+            x: { beginAtZero: true }
+          }
+        }
+      };
+
+      new Chart(document.getElementById("falseNegativeTop5"), falseNegativeTop5Config);
+
+      // False Positive Report TOP 5 (최근 30일)
+      const falsePositiveTop5Data = {
+        labels: ["https://benign1.com", "https://benign2.com", "https://benign3.com", "https://benign4.com", "https://benign5.com"],
+        datasets: [{
+          label: 'False Positive Count',
+          data: [5, 4, 3, 2, 1],
+          backgroundColor: 'rgba(153, 102, 255, 0.6)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 1
+        }]
+      };
+
+      const falsePositiveTop5Config = {
+        type: 'bar',
+        data: falsePositiveTop5Data,
+        options: {
+          indexAxis: 'y', // 가로 막대 그래프 설정
+          scales: {
+            x: { beginAtZero: true }
+          }
+        }
+      };
+
+      new Chart(document.getElementById("falsePositiveTop5"), falsePositiveTop5Config);
+    </script>
+  </body>
+</html>

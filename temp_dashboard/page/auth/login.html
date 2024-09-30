@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #1a1a1a;
+      }
+      .login-container {
+        background-color: #333333;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+        width: 400px;
+        text-align: center;
+        color: #fff;
+      }
+      .logo {
+        margin-bottom: 15px;
+      }
+      .logo img {
+        max-width: 150px; /* 로고 크기 조정 */
+        height: auto;
+      }
+      h2 {
+        margin-bottom: 15px;
+        font-size: 22px;
+        color: #ff5722;
+      }
+      .input-group {
+        margin-bottom: 15px;
+      }
+      .input-group label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #fff;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      .input-group input:focus {
+        outline: none;
+        border-color: #ff5722;
+      }
+      .login-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #ff5722;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      .login-btn:hover {
+        background-color: #e64a19;
+      }
+      .options {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #ff5722;
+      }
+      .options a {
+        color: #ff5722;
+        text-decoration: none;
+      }
+      .options a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="logo">
+        <img src="/static/images/logo.png" alt="Logo" />
+      </div>
+      <h2>Login</h2>
+      <form>
+        <div class="input-group">
+          <label for="user-id">User ID</label>
+          <input
+            type="text"
+            id="user-id"
+            placeholder="Enter your user ID"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <button type="submit" class="login-btn">Login</button>
+        <div class="options">
+          <a href="/page/auth/forgot_password.html">Forgot your password?</a>
+          <a href="/page/auth/signup.html">Sign up here</a>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
