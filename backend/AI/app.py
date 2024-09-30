@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+import psycopg2
+import numpy as np
 from modules.url_model import detector as um
 from modules.static_model import detector as sm
 from modules.dynamic_model import detector as dm
@@ -38,6 +40,17 @@ app_logger.setLevel(logging.DEBUG)
 app_logger.propagate = False  # to prevent double messages
 
 
+# Database Connection ===========================================
+try:
+    db_conn = psycopg2.connect(
+        host=(os.getenv("DB_HOST")),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
+    )
+except:
+    app_logger.error("Error connecting to the database")
+
 # Load models ====================================================
 url_model_path = './modules/url_model/model-q.onnx'
 url_tokenizer_path = './modules/url_model/tokenizer'
@@ -59,10 +72,9 @@ js_path = "js_files"
 if not os.path.exists(f"{base_folder}/{js_storage_path}"):
     os.makedirs(f"{base_folder}/{js_storage_path}")
 
+
 # functions to run each ai model =================================
 # extract js files and save them to generated folder
-
-
 def extract_js_files(url):
     global js_path
     # warning: may have concurrency issues
@@ -70,15 +82,13 @@ def extract_js_files(url):
     jsextractor.scrape_and_save_js_files(
         url, f"{base_folder}/{js_storage_path}/{js_path}/")  # send abs path
 
+
 # run url-based model
-
-
 def run_url_model(url):
     return url_model.predict([url])
 
+
 # run static model
-
-
 def run_static_model():
     path = f"{base_folder}/{js_storage_path}/{js_path}/"
     js_list = os.listdir(path)  # returns list of js files in the folder
@@ -91,32 +101,94 @@ def run_static_model():
 
     return static_model.predict(entire_js_script)
 
+
 # run dynamic model
-
-
 def run_dynamic_model():
     return dynamic_model.predict(js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
+
 
 # combine results from all models =================================
 def combine_results(urlres, sres, dres):
     # combine dynamic and static results
     # result example: [{'prediction': 'benign', 'confidence': 0.69}, {'prediction': 'benign', 'confidence': 1.0}, {'prediction': 'benign', 'confidence': 0.8694769397269397},...]
-    s_d_res = []
-    for i in range(len(sres)):
-        s_d_res.append(
-            dynamic_weight * (dres[i]['confidence'] if dres[i]['prediction'] == 'malicious' else 1 - dres[i]['confidence']) +
-            static_weight * (sres[i]['confidence'] if sres[i]['prediction']
-                             == 'malicious' else 1 - sres[i]['confidence'])
-        )
-        
+
+    # 정적 모델과 동적 모델의 js 분석 결과 갯수가 다를 수 있어서 보류
+    # s_d_res = []
+    # for i in range(len(sres)):
+    #     s_d_res.append(
+    #         dynamic_weight * (dres[i]['confidence'] if dres[i]['prediction'] == 'malicious' else 1 - dres[i]['confidence']) +
+    #         static_weight * (sres[i]['confidence'] if sres[i]['prediction']
+    #                          == 'malicious' else 1 - sres[i]['confidence'])
+    #     )
+
     # combine url and s_d_res
-    combined_pred = 0.1 * (urlres[0]['confidence'] if urlres[0]['prediction'] == 'malicious' else 1 - urlres[0]['confidence']) + 0.9 * max(s_d_res)
-    
-    return combined_pred >= 0.5
+    # combined_pred = 0.1 * (urlres[0]['confidence'] if urlres[0]['prediction']
+    #                        == 'malicious' else 1 - urlres[0]['confidence']) + 0.9 * max(s_d_res)
+
+    # confidence 최대 값으로 prediction 결정
+    s_max = max(sres, key=lambda x: x['confidence'])
+    d_max = max(dres, key=lambda x: x['confidence'])
+
+    s_conf = s_max['confidence'] if s_max['prediction'] == 'malicious' else 1 - \
+        s_max['confidence']
+    d_conf = d_max['confidence'] if d_max['prediction'] == 'malicious' else 1 - \
+        d_max['confidence']
+
+    combined_pred = 0.1 * (urlres[0]['confidence'] if urlres[0]['prediction'] == 'malicious' else 1 -
+                           urlres[0]['confidence']) + 0.9 * (dynamic_weight * d_conf + static_weight * s_conf)
+
+    app_logger.info(f"Combined prediction: {combined_pred}")
+
+    return combined_pred >= 0.5, combined_pred
+
 
 # send url to database ============================================
-def send_to_database(url, result):
-    pass
+def send_to_database(url, final_res, confidence_score, urlres, staticres, dynamicres):
+    # get the final results of the models
+    url_aggregated = True if urlres[0]['prediction'] == 'malicious' else False
+
+    # choose the maximum confidence score and take its prediction
+    static_aggregated = True if max(staticres, key=lambda x: x['confidence'])[
+        'prediction'] == 'malicious' else False
+    dynamic_aggregated = True if max(dynamicres, key=lambda x: x['confidence'])[
+        'prediction'] == 'malicious' else False
+
+    app_logger.info(
+        f"Final results: URL: {url_aggregated}, Static: {static_aggregated}, Dynamic: {dynamic_aggregated}")
+
+    # Convert numpy.bool_ to Python bool (if necessary)
+    final_res = bool(final_res) if isinstance(
+        final_res, np.bool_) else final_res
+    url_aggregated = bool(url_aggregated) if isinstance(
+        url_aggregated, np.bool_) else url_aggregated
+    static_aggregated = bool(static_aggregated) if isinstance(
+        static_aggregated, np.bool_) else static_aggregated
+    dynamic_aggregated = bool(dynamic_aggregated) if isinstance(
+        dynamic_aggregated, np.bool_) else dynamic_aggregated
+
+    sql_query = """
+    INSERT INTO "Url" (url, "isMalicious", "detectedBy", "urlResult", "staticResult", "dynamicResult", "accessCount", "confidenceScore", "createdAt", "updatedAt")
+    VALUES (%s, %s, 'AI_MODEL', %s, %s, %s, 1, %s, NOW(), NOW())
+    ON CONFLICT (url)
+    DO UPDATE SET
+        "isMalicious" = EXCLUDED."isMalicious",
+        "urlResult" = EXCLUDED."urlResult",
+        "staticResult" = EXCLUDED."staticResult",
+        "dynamicResult" = EXCLUDED."dynamicResult",
+        "confidenceScore" = EXCLUDED."confidenceScore",
+        "accessCount" = "Url"."accessCount" + 1,
+        "updatedAt" = NOW();
+    """
+
+    cur = db_conn.cursor()
+
+    cur.execute(sql_query, (url, final_res,
+                url_aggregated, static_aggregated, dynamic_aggregated, confidence_score))
+    db_conn.commit()
+    cur.close()
+
+    app_logger.info("Data saved to the database")
+
 
 # endpoint for url ai-check ======================================
 @app.route('/url/ai', methods=['POST'])
@@ -149,16 +221,20 @@ def process_url():
         app_logger.info(f"Static result: {staticres}")
         app_logger.info(f"Dynamic result: {dynamicres}")
 
-        final_res = combine_results(urlres, staticres, dynamicres)
-        
-        # todo: send result to database
+        final_res, confidence_score = combine_results(
+            urlres, staticres, dynamicres)
 
-        return jsonify({  # todo: fix result
+        final_res = bool(final_res) if isinstance(
+            final_res, np.bool_) else final_res
+
+        send_to_database(url, final_res, confidence_score,
+                         urlres, staticres, dynamicres)  # save to the database
+
+        return jsonify({
             "statusCode": 200,
             "message": "Successfully completed URL check",
             "data": {
                 "url": url,
-                # assume result is boolean (currently hardcoded to True)
                 "isMalicious": final_res,
                 "source": 2,
             }

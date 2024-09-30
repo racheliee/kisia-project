@@ -40,6 +40,7 @@ optimum==1.21.4
 packaging==24.1
 pandas==2.2.2
 protobuf==5.27.3
+psycopg2==2.9.9
 pyarrow==17.0.0
 pybind11==2.13.5
 pyee==11.1.0
