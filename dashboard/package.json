@@ -1,5 +1,5 @@
 {
-  "name": "dashboard",
+  "name": "vue_dashboard",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,8 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^1.7.7",
+    "chart.js": "^4.4.4",
     "core-js": "^3.8.3",
     "vue": "^3.2.13"
   },
