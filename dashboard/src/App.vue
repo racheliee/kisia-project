@@ -35,6 +35,11 @@
         <h2>URL Search</h2>
         <URLSearch />
       </section>
+
+      <section class="dashboard-box">
+        <h2>ConfusionMatrix</h2>
+        <ConfusionMatrix />
+      </section>
       
 
     </div>
@@ -51,6 +56,7 @@ import URLSearch from './components/URLSearch.vue';
 import Top5Reports from './components/Top5Reports.vue';
 import DbOverview from './components/DbOverview.vue';
 import UserInformation from './components/UserInformation.vue';  
+import ConfusionMatrix from './components/ConfusionMatrix.vue';
 
 export default {
   components: {
@@ -59,6 +65,7 @@ export default {
     Top5Reports,
     DbOverview,
     UserInformation,
+    ConfusionMatrix
   },
 };
 </script>
