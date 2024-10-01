@@ -14,11 +14,18 @@
     <!-- URL 검사 갯수 선택 버튼 -->
     <h2>URL Verifications</h2>
     <div class="button-container">
-      <button @click="showGraph('daily')">Daily</button>
-      <button @click="showGraph('weekly')">Weekly</button>
-      <button @click="showGraph('monthly')">Monthly</button>
+      <button :disabled="isLoading" @click="showGraphWithLoading('daily')">Daily</button>
+      <button :disabled="isLoading" @click="showGraphWithLoading('weekly')">Weekly</button>
+      <button :disabled="isLoading" @click="showGraphWithLoading('monthly')">Monthly</button>
     </div>
-    <canvas id="verificationChart"></canvas>
+
+    <!-- 로딩 중이면 로딩 애니메이션 표시, 아니면 차트 표시 -->
+    <div class="canvas-wrapper">
+      <div v-if="isLoading" class="loader-container">
+        <div class="loader"></div>
+      </div>
+      <canvas v-show="!isLoading" id="verificationChart"></canvas>
+    </div>
   </div>
 </template>
 
@@ -35,10 +42,22 @@ export default {
       weeklyVerificationData: [], // 주간 검사 데이터
       monthlyVerificationData: [], // 월간 검사 데이터
       currentVerificationChart: null, // 현재 표시 중인 URL 검사 차트
+      dbSizeChartInstance: null, // DB 크기 차트 인스턴스
+      isLoading: false, // 로딩 상태 관리 변수
+      currentGraph: 'daily', // 현재 보여지는 그래프 타입
     };
   },
   mounted() {
     this.fetchDbData();
+  },
+  beforeUnmount() {
+    // 차트 인스턴스가 존재하면 제거
+    if (this.currentVerificationChart) {
+      this.currentVerificationChart.destroy();
+    }
+    if (this.dbSizeChartInstance) {
+      this.dbSizeChartInstance.destroy();
+    }
   },
   methods: {
     // DB 데이터 가져오기
@@ -54,12 +73,12 @@ export default {
         this.monthlyVerificationData = data.monthlyVerifications;
 
         this.renderDbSizeChart();
-        this.showGraph('daily');
+        this.showGraph('daily'); // 초기 그래프를 daily로 설정
       } catch (error) {
         console.error('Error fetching data, using temporary data', error);
         this.useTemporaryData();
         this.renderDbSizeChart();
-        this.showGraph('daily');
+        this.showGraph('daily'); // 초기 그래프를 daily로 설정
       }
     },
     // 임시 데이터 사용
@@ -74,8 +93,18 @@ export default {
     },
     // DB 크기 그래프 렌더링
     renderDbSizeChart() {
-      const ctx = document.getElementById('dbSizeChart').getContext('2d');
-      new Chart(ctx, {
+      const ctx = document.getElementById('dbSizeChart');
+
+      if (!ctx) {
+        console.error('Canvas element not found');
+        return;
+      }
+
+      if (this.dbSizeChartInstance) {
+        this.dbSizeChartInstance.destroy();
+      }
+
+      this.dbSizeChartInstance = new Chart(ctx.getContext('2d'), {
         type: 'line',
         data: {
           labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -98,9 +127,21 @@ export default {
         },
       });
     },
-    // URL 검사 그래프 렌더링
+    // 로딩 상태를 추가한 URL 검사 그래프 렌더링
+    showGraphWithLoading(type) {
+      this.isLoading = true; // 로딩 시작
+      setTimeout(() => {
+        this.showGraph(type);
+        this.isLoading = false; // 로딩 끝
+      }, 2000); // 2초 후 차트 렌더링
+    },
     showGraph(type) {
-      const ctx = document.getElementById('verificationChart').getContext('2d');
+      const ctx = document.getElementById('verificationChart');
+
+      if (!ctx) {
+        console.error('Canvas element not found');
+        return;
+      }
 
       if (this.currentVerificationChart) {
         this.currentVerificationChart.destroy();
@@ -148,7 +189,7 @@ export default {
         };
       }
 
-      this.currentVerificationChart = new Chart(ctx, {
+      this.currentVerificationChart = new Chart(ctx.getContext('2d'), {
         type: 'bar',
         data,
         options: {
@@ -187,5 +228,37 @@ canvas {
 
 .button-container button:hover {
   background-color: #0056b3;
+}
+
+/* 로딩 애니메이션 */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px; /* 캔버스 높이와 일치 */
+}
+
+.loader {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #007bff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 캔버스와 로딩 바가 같은 높이를 유지 */
+.canvas-wrapper {
+  position: relative;
+  height: 300px;
 }
 </style>

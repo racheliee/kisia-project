@@ -25,7 +25,7 @@
         <tr v-for="url in paginatedResults" :key="url.id">
           <td>{{ url.id }}</td>
           <td>{{ url.url }}</td>
-          <td>{{ url.isMalicious ? 'Yes' : 'No' }}</td>
+          <td>{{ url.isMalicious ? "Yes" : "No" }}</td>
           <td>
             <button @click="showDetails(url)">Show More Details</button>
           </td>
@@ -36,12 +36,21 @@
     <!-- 페이징 버튼 -->
     <div class="pagination" v-if="results.length">
       <button v-if="currentPage > 1" @click="changePage(1)">&lt;&lt;</button>
-      <button v-if="currentPage > 1" @click="changePage(currentPage - 1)">&lt;</button>
+      <button v-if="currentPage > 1" @click="changePage(currentPage - 1)">
+        &lt;
+      </button>
       <button v-for="page in totalPages" :key="page" @click="changePage(page)">
         {{ page }}
       </button>
-      <button v-if="currentPage < totalPages" @click="changePage(currentPage + 1)">&gt;</button>
-      <button v-if="currentPage < totalPages" @click="changePage(totalPages)">&gt;&gt;</button>
+      <button
+        v-if="currentPage < totalPages"
+        @click="changePage(currentPage + 1)"
+      >
+        &gt;
+      </button>
+      <button v-if="currentPage < totalPages" @click="changePage(totalPages)">
+        &gt;&gt;
+      </button>
     </div>
 
     <!-- 팝업 창 -->
@@ -49,8 +58,11 @@
       <div class="popup" @click.stop>
         <h3>URL Details</h3>
         <p><strong>URL:</strong> {{ popupData.url }}</p>
-        <p><strong>Is Malicious:</strong> {{ popupData.isMalicious ? 'Yes' : 'No' }}</p>
-        <p><strong>Type:</strong> {{ popupData.type || 'N/A' }}</p>
+        <p>
+          <strong>Is Malicious:</strong>
+          {{ popupData.isMalicious ? "Yes" : "No" }}
+        </p>
+        <p><strong>Type:</strong> {{ popupData.type || "N/A" }}</p>
         <p><strong>Score:</strong> {{ popupData.score }}</p>
         <p><strong>Access Count:</strong> {{ popupData.accessCount }}</p>
         <p><strong>Created At:</strong> {{ popupData.createdAt }}</p>
@@ -62,12 +74,12 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
     return {
-      query: '',
+      query: "",
       results: [], // 검색된 결과
       currentPage: 1, // 현재 페이지
       itemsPerPage: 10, // 페이지당 항목 수
@@ -88,12 +100,12 @@ export default {
     async searchURL() {
       try {
         // 실제 DB에서 데이터 요청
-        const response = await axios.get('/api/urls', {
+        const response = await axios.get("/api/urls", {
           params: { query: this.query },
         });
         this.results = response.data;
       } catch (error) {
-        console.error('Error fetching data, using temporary data', error);
+        console.error("Error fetching data, using temporary data", error);
         this.useTemporaryData();
       }
       this.currentPage = 1;
@@ -103,25 +115,255 @@ export default {
       this.results = [
         {
           id: 1,
-          url: 'https://example.com',
+          url: "https://example.com",
           isMalicious: false,
           type: null,
           score: 0.0,
           accessCount: 150,
-          createdAt: '2022-01-15',
-          updatedAt: '2022-06-30',
+          createdAt: "2022-01-15",
+          updatedAt: "2022-06-30",
         },
         {
           id: 2,
-          url: 'https://malicious-site.com',
+          url: "https://malicious-site.com",
           isMalicious: true,
-          type: 'Phishing',
+          type: "Phishing",
           score: 85.5,
           accessCount: 300,
-          createdAt: '2023-03-10',
-          updatedAt: '2023-05-15',
+          createdAt: "2023-03-10",
+          updatedAt: "2023-05-15",
         },
-        // 추가 데이터는 필요에 따라 더 작성
+        {
+          id: 3,
+          url: "https://benign-site.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 120,
+          createdAt: "2023-02-20",
+          updatedAt: "2023-07-10",
+        },
+        {
+          id: 4,
+          url: "https://another-malicious.com",
+          isMalicious: true,
+          type: "Malware",
+          score: 92.3,
+          accessCount: 450,
+          createdAt: "2023-01-25",
+          updatedAt: "2023-06-22",
+        },
+        {
+          id: 5,
+          url: "https://safe-website.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 80,
+          createdAt: "2023-06-18",
+          updatedAt: "2023-07-01",
+        },
+        {
+          id: 6,
+          url: "https://dangerous-site.com",
+          isMalicious: true,
+          type: "Trojan",
+          score: 78.4,
+          accessCount: 520,
+          createdAt: "2023-05-11",
+          updatedAt: "2023-06-05",
+        },
+        {
+          id: 7,
+          url: "https://benign2.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 110,
+          createdAt: "2023-04-14",
+          updatedAt: "2023-06-30",
+        },
+        {
+          id: 8,
+          url: "https://fake-news.com",
+          isMalicious: true,
+          type: "Scam",
+          score: 88.7,
+          accessCount: 320,
+          createdAt: "2023-03-01",
+          updatedAt: "2023-05-10",
+        },
+        {
+          id: 9,
+          url: "https://malware-distributor.com",
+          isMalicious: true,
+          type: "Malware",
+          score: 91.0,
+          accessCount: 470,
+          createdAt: "2022-10-21",
+          updatedAt: "2023-04-15",
+        },
+        {
+          id: 10,
+          url: "https://safesite.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 95,
+          createdAt: "2023-03-30",
+          updatedAt: "2023-07-20",
+        },
+        {
+          id: 11,
+          url: "https://malicious-phishing.com",
+          isMalicious: true,
+          type: "Phishing",
+          score: 93.4,
+          accessCount: 340,
+          createdAt: "2023-02-05",
+          updatedAt: "2023-04-01",
+        },
+        {
+          id: 12,
+          url: "https://harmless-website.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 130,
+          createdAt: "2023-04-20",
+          updatedAt: "2023-05-18",
+        },
+        {
+          id: 13,
+          url: "https://ransomware-hub.com",
+          isMalicious: true,
+          type: "Ransomware",
+          score: 95.9,
+          accessCount: 540,
+          createdAt: "2022-12-12",
+          updatedAt: "2023-01-15",
+        },
+        {
+          id: 14,
+          url: "https://normal-site.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 140,
+          createdAt: "2023-07-07",
+          updatedAt: "2023-08-15",
+        },
+        {
+          id: 15,
+          url: "https://benign-but-suspicious.com",
+          isMalicious: false,
+          type: null,
+          score: 10.0,
+          accessCount: 85,
+          createdAt: "2023-06-05",
+          updatedAt: "2023-07-02",
+        },
+        {
+          id: 16,
+          url: "https://trojan-horse.com",
+          isMalicious: true,
+          type: "Trojan",
+          score: 80.5,
+          accessCount: 630,
+          createdAt: "2023-01-02",
+          updatedAt: "2023-03-10",
+        },
+        {
+          id: 17,
+          url: "https://safe-secure.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 60,
+          createdAt: "2023-05-08",
+          updatedAt: "2023-07-08",
+        },
+        {
+          id: 18,
+          url: "https://dangerous-scam.com",
+          isMalicious: true,
+          type: "Scam",
+          score: 86.9,
+          accessCount: 400,
+          createdAt: "2023-03-25",
+          updatedAt: "2023-05-20",
+        },
+        {
+          id: 19,
+          url: "https://benign-website.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 90,
+          createdAt: "2023-07-25",
+          updatedAt: "2023-08-05",
+        },
+        {
+          id: 20,
+          url: "https://phishing-alert.com",
+          isMalicious: true,
+          type: "Phishing",
+          score: 89.2,
+          accessCount: 280,
+          createdAt: "2023-01-30",
+          updatedAt: "2023-04-20",
+        },
+        {
+          id: 21,
+          url: "https://benign-sample.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 50,
+          createdAt: "2023-06-18",
+          updatedAt: "2023-07-15",
+        },
+        {
+          id: 22,
+          url: "https://malicious-exploit.com",
+          isMalicious: true,
+          type: "Exploit",
+          score: 97.1,
+          accessCount: 490,
+          createdAt: "2022-09-15",
+          updatedAt: "2023-05-11",
+        },
+        {
+          id: 23,
+          url: "https://malicious-botnet.com",
+          isMalicious: true,
+          type: "Botnet",
+          score: 90.8,
+          accessCount: 410,
+          createdAt: "2023-02-01",
+          updatedAt: "2023-03-22",
+        },
+        {
+          id: 24,
+          url: "https://safe-content.com",
+          isMalicious: false,
+          type: null,
+          score: 0.0,
+          accessCount: 75,
+          createdAt: "2023-05-14",
+          updatedAt: "2023-07-10",
+        },
+        {
+          id: 25,
+          url: "https://malicious-fraud.com",
+          isMalicious: true,
+          type: "Fraud",
+          score: 88.1,
+          accessCount: 340,
+          createdAt: "2023-02-15",
+          updatedAt: "2023-06-15",
+        },
+        // 데이터를 계속 추가할 수 있음
       ];
     },
     changePage(page) {
@@ -141,7 +383,7 @@ export default {
 .search-container {
   margin-bottom: 20px;
 }
-input[type='text'] {
+input[type="text"] {
   width: 300px;
   padding: 10px;
   border-radius: 5px;

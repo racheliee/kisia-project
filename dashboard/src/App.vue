@@ -11,30 +11,32 @@
         <ServiceCharts />
       </section>
 
-      <!-- URL 검색 및 데이터베이스 정보 -->
+      
+      <!-- 데이터베이스 정보  -->
       <section class="dashboard-box">
-        <h2>URL Search and Database Info</h2>
-        <URLSearch />
+        <h2>Database Info</h2>
         <DbOverview />
       </section>
-
+      
+      <!-- 사용자 정보 -->
+      <section class="dashboard-box">
+        <h2>User Information</h2>
+        <UserInformation />
+      </section>
+      
       <!-- URL 통계 (Top 5 및 False Reports) -->
       <section class="dashboard-box">
         <h2>URL Statistics</h2>
         <Top5Reports />
       </section>
 
-      <!-- 모델 성능 차트 -->
+      <!-- URL 검색 -->
       <section class="dashboard-box">
-        <h2>Model Performance</h2>
-        <ModelPerformance />
+        <h2>URL Search</h2>
+        <URLSearch />
       </section>
+      
 
-      <!-- 사용자 정보 -->
-      <section class="dashboard-box">
-        <h2>User Information</h2>
-        <UserInformation />
-      </section>
     </div>
 
     <footer>
@@ -48,8 +50,7 @@ import ServiceCharts from './components/ServiceCharts.vue';
 import URLSearch from './components/URLSearch.vue';
 import Top5Reports from './components/Top5Reports.vue';
 import DbOverview from './components/DbOverview.vue';
-import ModelPerformance from './components/ModelPerformance.vue';
-import UserInformation from './components/UserInformation.vue';  // 사용자 정보 컴포넌트 추가
+import UserInformation from './components/UserInformation.vue';  
 
 export default {
   components: {
@@ -57,7 +58,6 @@ export default {
     URLSearch,
     Top5Reports,
     DbOverview,
-    ModelPerformance,
     UserInformation,
   },
 };
