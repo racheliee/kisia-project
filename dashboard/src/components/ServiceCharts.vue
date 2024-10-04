@@ -14,7 +14,7 @@ export default {
     return {
       totalRequests: [], // 총 검사 요청 데이터
       aiRequests: [], // AI 검사 요청 데이터
-      months: [], // 최근 6개월의 월
+      months: ["April", "May", "June", "July", "August", "September"], // 최근 6개월의 월
       error: false, // 오류 발생 여부
     };
   },
@@ -25,17 +25,13 @@ export default {
     // 데이터를 받아오는 함수
     async fetchData() {
       try {
-        const response = await axios.get("/api/requests"); // 실제 API URL
-        const data = response.data;
+        // 첫 번째 API 호출: 총 요청 수 가져오기
+        const totalResponse = await axios.get("/admin/stats/total-requests?interval=month");
+        this.totalRequests = this.extractLastSixMonthsData(totalResponse.data.totalRequests);
 
-        this.totalRequests = data.totalRequests;
-        this.aiRequests = data.aiRequests;
-
-        // 최근 6개월 데이터를 추출
-        const lastSixMonthsData = this.getLastSixMonths(data.months);
-        this.months = lastSixMonthsData.months;
-        this.totalRequests = lastSixMonthsData.totalRequests;
-        this.aiRequests = lastSixMonthsData.aiRequests;
+        // 두 번째 API 호출: AI 요청 수 가져오기
+        const aiResponse = await axios.get("/admin/stats/ai-requests?interval=month");
+        this.aiRequests = this.extractLastSixMonthsData(aiResponse.data.aiRequests);
 
         // 차트를 렌더링
         this.renderChart();
@@ -54,25 +50,9 @@ export default {
       }
     },
     // 최근 6개월 데이터를 추출하는 함수
-    getLastSixMonths(allMonths) {
-      const today = new Date();
-      const currentMonth = today.getMonth(); // 현재 월 (0이 1월, 11이 12월)
-      const lastSixMonths = [];
-      const lastSixTotalRequests = [];
-      const lastSixAIRequests = [];
-
-      for (let i = 1; i <= 6; i++) {
-        const monthIndex = (currentMonth - i + 12) % 12;
-        lastSixMonths.unshift(allMonths[monthIndex]);
-        lastSixTotalRequests.unshift(this.totalRequests[monthIndex]);
-        lastSixAIRequests.unshift(this.aiRequests[monthIndex]);
-      }
-
-      return {
-        months: lastSixMonths,
-        totalRequests: lastSixTotalRequests,
-        aiRequests: lastSixAIRequests,
-      };
+    extractLastSixMonthsData(data) {
+      // API에서 받은 데이터는 총 합계일 수 있으므로, 최근 6개월 데이터를 추출
+      return data.slice(Math.max(data.length - 6, 0)); 
     },
     // 임시 데이터를 제공하는 함수 (DB 연결 실패 시 사용)
     getTemporaryData() {

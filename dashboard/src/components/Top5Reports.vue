@@ -33,17 +33,22 @@ export default {
     this.fetchData();
     this.startAutoSwitch();
   },
-  beforeUnmount() { // 변경된 부분
+  beforeUnmount() {
     clearInterval(this.interval);
   },
   methods: {
     async fetchData() {
       try {
-        const response = await axios.get('/api/top5-reports');
-        const data = response.data;
-        this.accessCountData = data.accessCountTop5;
-        this.falseNegativeData = data.falseNegativeTop5;
-        this.falsePositiveData = data.falsePositiveTop5;
+        const [accessCountRes, falseNegativeRes, falsePositiveRes] = await Promise.all([
+          axios.get('/admin/stats/top-accessed-urls'),
+          axios.get('/admin/stats/top-false-negatives'),
+          axios.get('/admin/stats/top-false-positives'),
+        ]);
+
+        // Assign data based on the responses
+        this.accessCountData = accessCountRes.data.map(item => ({ url: item.url, count: item.accessCount }));
+        this.falseNegativeData = falseNegativeRes.data.map(item => ({ url: item.url, count: item.fnCount }));
+        this.falsePositiveData = falsePositiveRes.data.map(item => ({ url: item.url, count: item.fpCount }));
 
         this.renderCharts();
       } catch (error) {
@@ -62,30 +67,31 @@ export default {
       ];
 
       this.falseNegativeData = [
-        { url: 'https://malicious1.com', count: 5 },
-        { url: 'https://malicious2.com', count: 4 },
-        { url: 'https://malicious3.com', count: 3 },
-        { url: 'https://malicious4.com', count: 2 },
-        { url: 'https://malicious5.com', count: 1 },
+        { url: 'https://malicious1.com', count: 12 },
+        { url: 'https://malicious2.com', count: 7 },
+        { url: 'https://malicious3.com', count: 5 },
+        { url: 'https://malicious4.com', count: 3 },
+        { url: 'https://malicious5.com', count: 2 },
       ];
 
       this.falsePositiveData = [
-        { url: 'https://benign1.com', count: 5 },
-        { url: 'https://benign2.com', count: 4 },
-        { url: 'https://benign3.com', count: 3 },
-        { url: 'https://benign4.com', count: 2 },
-        { url: 'https://benign5.com', count: 1 },
+        { url: 'https://benign1.com', count: 10 },
+        { url: 'https://benign2.com', count: 8 },
+        { url: 'https://benign3.com', count: 6 },
+        { url: 'https://benign4.com', count: 4 },
+        { url: 'https://benign5.com', count: 2 },
       ];
     },
     renderCharts() {
+      // Render Access Count Chart
       new Chart(document.getElementById('accessCountTop5'), {
         type: 'bar',
         data: {
-          labels: this.accessCountData.map((item) => item.url),
+          labels: this.accessCountData.map(item => item.url),
           datasets: [
             {
               label: 'Access Count',
-              data: this.accessCountData.map((item) => item.count),
+              data: this.accessCountData.map(item => item.count),
               backgroundColor: 'rgba(75, 192, 192, 0.6)',
               borderColor: 'rgba(75, 192, 192, 1)',
               borderWidth: 1,
@@ -98,14 +104,15 @@ export default {
         },
       });
 
+      // Render False Negative Chart
       new Chart(document.getElementById('falseNegativeTop5'), {
         type: 'bar',
         data: {
-          labels: this.falseNegativeData.map((item) => item.url),
+          labels: this.falseNegativeData.map(item => item.url),
           datasets: [
             {
               label: 'False Negative Count',
-              data: this.falseNegativeData.map((item) => item.count),
+              data: this.falseNegativeData.map(item => item.count),
               backgroundColor: 'rgba(255, 159, 64, 0.6)',
               borderColor: 'rgba(255, 159, 64, 1)',
               borderWidth: 1,
@@ -118,14 +125,15 @@ export default {
         },
       });
 
+      // Render False Positive Chart
       new Chart(document.getElementById('falsePositiveTop5'), {
         type: 'bar',
         data: {
-          labels: this.falsePositiveData.map((item) => item.url),
+          labels: this.falsePositiveData.map(item => item.url),
           datasets: [
             {
               label: 'False Positive Count',
-              data: this.falsePositiveData.map((item) => item.count),
+              data: this.falsePositiveData.map(item => item.count),
               backgroundColor: 'rgba(153, 102, 255, 0.6)',
               borderColor: 'rgba(153, 102, 255, 1)',
               borderWidth: 1,
