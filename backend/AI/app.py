@@ -143,30 +143,33 @@ def combine_results(urlres, sres, dres):
 
 
 # send url to database ============================================
+def get_confidence_range(confidence_score):
+    confidence_score = max(0.0, min(1.0, confidence_score))
+
+    lower_bound = int(confidence_score * 10) / 10.0
+    upper_bound = lower_bound + 0.1
+
+    return f"[{lower_bound:.1f}-{upper_bound:.1f})"
+
+
 def send_to_database(url, final_res, confidence_score, urlres, staticres, dynamicres):
     # get the final results of the models
     url_aggregated = True if urlres[0]['prediction'] == 'malicious' else False
 
     # choose the maximum confidence score and take its prediction
-    static_aggregated = True if max(staticres, key=lambda x: x['confidence'])[
-        'prediction'] == 'malicious' else False
-    dynamic_aggregated = True if max(dynamicres, key=lambda x: x['confidence'])[
-        'prediction'] == 'malicious' else False
+    static_aggregated = True if max(staticres, key=lambda x: x['confidence'])['prediction'] == 'malicious' else False
+    dynamic_aggregated = True if max(dynamicres, key=lambda x: x['confidence'])['prediction'] == 'malicious' else False
 
-    app_logger.info(
-        f"Final results: URL: {url_aggregated}, Static: {static_aggregated}, Dynamic: {dynamic_aggregated}")
+    app_logger.info(f"Final results: URL: {url_aggregated}, Static: {static_aggregated}, Dynamic: {dynamic_aggregated}")
 
     # Convert numpy.bool_ to Python bool (if necessary)
-    final_res = bool(final_res) if isinstance(
-        final_res, np.bool_) else final_res
-    url_aggregated = bool(url_aggregated) if isinstance(
-        url_aggregated, np.bool_) else url_aggregated
-    static_aggregated = bool(static_aggregated) if isinstance(
-        static_aggregated, np.bool_) else static_aggregated
-    dynamic_aggregated = bool(dynamic_aggregated) if isinstance(
-        dynamic_aggregated, np.bool_) else dynamic_aggregated
+    final_res = bool(final_res) if isinstance(final_res, np.bool_) else final_res
+    url_aggregated = bool(url_aggregated) if isinstance(url_aggregated, np.bool_) else url_aggregated
+    static_aggregated = bool(static_aggregated) if isinstance(static_aggregated, np.bool_) else static_aggregated
+    dynamic_aggregated = bool(dynamic_aggregated) if isinstance(dynamic_aggregated, np.bool_) else dynamic_aggregated
 
-    sql_query = """
+    # url query
+    sql_url_query = """
     INSERT INTO "Url" (url, "isMalicious", "detectedBy", "urlResult", "staticResult", "dynamicResult", "accessCount", "confidenceScore", "createdAt", "updatedAt")
     VALUES (%s, %s, 'AI_MODEL', %s, %s, %s, 1, %s, NOW(), NOW())
     ON CONFLICT (url)
@@ -179,15 +182,25 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
         "accessCount" = "Url"."accessCount" + 1,
         "updatedAt" = NOW();
     """
-
+    
+    # confidence score hit rate query
+    sql_hitrate_query = """
+    INSERT INTO "ConfidenceHitRate" ("confidenceRange", "count", "updatedAt")
+    VALUES (%s, 1, NOW())
+    ON CONFLICT ("confidenceRange")
+    DO UPDATE SET
+        "count" = "ConfidenceHitRate"."count" + 1,
+        "updatedAt" = NOW();
+    """
+    
     cur = db_conn.cursor()
 
-    cur.execute(sql_query, (url, final_res,
-                url_aggregated, static_aggregated, dynamic_aggregated, confidence_score))
+    cur.execute(sql_url_query, (url, final_res, url_aggregated, static_aggregated, dynamic_aggregated, confidence_score))
+    cur.execute(sql_hitrate_query, (get_confidence_range(confidence_score),))
     db_conn.commit()
     cur.close()
 
-    app_logger.info("Data saved to the database")
+    app_logger.info("Url saved to the database and confidence hit rate updated")
 
 
 # endpoint for url ai-check ======================================

@@ -91,7 +91,7 @@ model RequestSummary {
 
 model ConfidenceHitRate {
   id              Int      @id @default(autoincrement())
-  confidenceRange String
+  confidenceRange String   @unique
   count           Int
   updatedAt       DateTime @updatedAt
 }
