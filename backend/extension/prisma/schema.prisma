@@ -88,3 +88,10 @@ model RequestSummary {
   aiRequests    Int
   createdAt     DateTime @default(now())
 }
+
+model ConfidenceHitRate {
+  id              Int      @id @default(autoincrement())
+  confidenceRange String
+  count           Int
+  updatedAt       DateTime @updatedAt
+}
