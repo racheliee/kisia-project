@@ -1,8 +1,7 @@
 dockerize -wait tcp://0.0.0.0:5432 -timeout 60s
 
 echo "Running migrations"
-# npx prisma migrate dev --name init
-npx prisma migrate deploy # run all migrations
+npx prisma migrate dev --name init
 
 # echo "Seeding database"
 
