@@ -1,6 +1,7 @@
 # kisia-project
 
 ## KISIA 제2회 정보보호 개발자 Hackathon (2024)
+
 - 팀명: 율스 (URLS)
 - 주제: 일상생활 속 정보보호
 - 프로젝트: 악성 URL 탐지 서비스 (Chrome Extension)
@@ -10,6 +11,7 @@
 <img src="./extension/image/text-logo.png" width="100">
 
 ### 기능
+
 1. Database Check
    - 악성 URL 모아 구축한 율스만의 database
    - 계속해서 쌓여 나가는 방식으로 종합적 DB 구축
@@ -22,6 +24,7 @@
    - 정적, 동적 모델을 통한 분석
 
 ### 기술 스택
+
 - Frontend: HTML, CSS, JavaScript
 - Backend: Python, Flask, NestJS, PostgreSQL, CI/CD
 - AI: LSTM, b-LSTM, CodeBERT, Jalangi, NLP, Random Forest
@@ -32,5 +35,29 @@
   - Universit of Maribor malicious url dataset
 
 ### Demo
+
 - [율스 악성 URL 탐지 서비스 탐지 시연 영상](https://drive.google.com/file/d/1MR6lOnnYuWg-IO3W-muJ0djdQdglDErT/view?usp=drive_link)
 - [율스 악성 URL 탐지 서비스 미탐지 시연 영상](https://drive.google.com/file/d/1UIsQsFgGIL_0CFuzHnU2InUrbaD2Cp_s/view?usp=sharing)
+
+## Notes about running the URLS
+
+### flask server
+
+- node version 12 and 14 are required due to the tools used in the project
+  - node version 12 for `jalangi2`
+    - set the project to use node version 12
+  - node version 14 for `prettier`
+    - version will change automatically to 14 when running prettier
+- You can use `nvm` to manage node versions
+```bash
+   nvm install 12
+   nvm use 12
+```
+
+### nestjs server
+
+- needs node version 20
+```bash
+   nvm install 20
+   nvm use 20
+```

@@ -26,12 +26,11 @@ enum DETECTOR {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(uuid())
   username      String    @unique
   password      String // hashed password
   email         String    @unique
   type          UserTypes @default(STANDARD_USER)
-  expiration    DateTime? // expiration date for premium users
   dailyRequests Int       @default(0) // number of requests made by the user in a day; resets at 00:00
   requestsLimit Int       @default(3) // number of requests allowed per day for free users
   lastLogin     DateTime? // last login time
@@ -43,35 +42,56 @@ model User {
 }
 
 model Url {
-  id               Int      @id @default(autoincrement())
-  url              String   @unique
-  isMalicious      Boolean
-  accessCount      Int      @default(0) // number of times this url has been asked for verification
-  detectedBy       DETECTOR @default(DATABASE)
-  falsePos         Int      @default(0) // number of times it was reported as a false positives
+  id              Int      @id @default(autoincrement())
+  url             String   @unique
+  isMalicious     Boolean
+  detectedBy      DETECTOR @default(DATABASE)
+  urlResult       Boolean? // url model result
+  staticResult    Boolean? // static model result
+  dynamicResult   Boolean? // dynamic model result
+  accessCount     Int      @default(1) // number of times this url has been asked for verification
+  falsePos        Int      @default(0) // number of times it was reported as a false positives
+  falseNeg        Int      @default(0) // number of times it was reported as a false negatives
   confidenceScore Float? // used with ai models
-  numFeedback      Int      @default(0) // number of feedbacks received (used to count false positives and negatives)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  // many-to-many relation with User
-  users History[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model History {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  urlId      Int
-  accessedAt DateTime @default(now())
+  id              Int      @id @default(autoincrement())
+  userId          String
+  url             String
+  isMalicious     Boolean
+  detectedBy      DETECTOR
+  confidenceScore Float?
+  createdAt       DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
-  url  Url  @relation(fields: [urlId], references: [id])
 }
 
-model Announcements{
+model ConfusionMatrix {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
+  modelType String   @unique // static, dynamic, ai
+  truePos   Int      @default(0)
+  trueNeg   Int      @default(0)
+  falsePos  Int      @default(0)
+  falseNeg  Int      @default(0)
   updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model RequestSummary {
+  id            Int      @id @default(autoincrement())
+  period        String // day, week, month
+  periodStart   DateTime
+  totalRequests Int
+  aiRequests    Int
+  createdAt     DateTime @default(now())
+}
+
+model ConfidenceHitRate {
+  id              Int      @id @default(autoincrement())
+  confidenceRange String   @unique
+  count           Int
+  updatedAt       DateTime @updatedAt
 }
