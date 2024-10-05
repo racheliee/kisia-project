@@ -4,44 +4,52 @@
       <h1>Admin Dashboard</h1>
     </header>
 
+    <nav class="nav-bar">
+      <ul>
+        <li><a href="#" @click.prevent="showSection('serviceStats')">Service Stats</a></li>
+        <li><a href="#" @click.prevent="showSection('dbOverview')">Database Info</a></li>
+        <li><a href="#" @click.prevent="showSection('userInfo')">User Info</a></li>
+        <li><a href="#" @click.prevent="showSection('urlStats')">URL Stats</a></li>
+        <li><a href="#" @click.prevent="showSection('urlSearch')">URL Search</a></li>
+        <li><a href="#" @click.prevent="showSection('confusionMatrix')">Confusion Matrix</a></li>
+      </ul>
+    </nav>
+
     <div class="dashboard-container">
-      <!-- 서비스 관련 차트 -->
-      <section class="dashboard-box">
-        <h2>Service Stats</h2>
+      <!-- Service Stats -->
+      <section v-if="currentSection === 'serviceStats'" class="dashboard-box">
         <ServiceCharts />
       </section>
 
-      
-      <!-- 데이터베이스 정보  -->
-      <section class="dashboard-box">
+      <!-- Database Info -->
+      <section v-if="currentSection === 'dbOverview'" class="dashboard-box">
         <h2>Database Info</h2>
         <DbOverview />
       </section>
-      
-      <!-- 사용자 정보 -->
-      <section class="dashboard-box">
+
+      <!-- User Information -->
+      <section v-if="currentSection === 'userInfo'" class="dashboard-box">
         <h2>User Information</h2>
         <UserInformation />
       </section>
-      
-      <!-- URL 통계 (Top 5 및 False Reports) -->
-      <section class="dashboard-box">
+
+      <!-- URL Statistics -->
+      <section v-if="currentSection === 'urlStats'" class="dashboard-box">
         <h2>URL Statistics</h2>
         <Top5Reports />
       </section>
 
-      <!-- URL 검색 -->
-      <section class="dashboard-box">
+      <!-- URL Search -->
+      <section v-if="currentSection === 'urlSearch'" class="dashboard-box">
         <h2>URL Search</h2>
         <URLSearch />
       </section>
 
-      <section class="dashboard-box">
-        <h2>ConfusionMatrix</h2>
+      <!-- Confusion Matrix -->
+      <section v-if="currentSection === 'confusionMatrix'" class="dashboard-box">
+        <h2>Confusion Matrix</h2>
         <ConfusionMatrix />
       </section>
-      
-
     </div>
 
     <footer>
@@ -52,83 +60,121 @@
 
 <script>
 import ServiceCharts from './components/ServiceCharts.vue';
-import URLSearch from './components/URLSearch.vue';
-import Top5Reports from './components/Top5Reports.vue';
 import DbOverview from './components/DbOverview.vue';
-import UserInformation from './components/UserInformation.vue';  
+import UserInformation from './components/UserInformation.vue';
+import Top5Reports from './components/Top5Reports.vue';
+import URLSearch from './components/URLSearch.vue';
 import ConfusionMatrix from './components/ConfusionMatrix.vue';
 
 export default {
+  data() {
+    return {
+      currentSection: 'serviceStats', // Default section
+    };
+  },
   components: {
     ServiceCharts,
-    URLSearch,
-    Top5Reports,
     DbOverview,
     UserInformation,
-    ConfusionMatrix
+    Top5Reports,
+    URLSearch,
+    ConfusionMatrix,
+  },
+  methods: {
+    showSection(section) {
+      this.currentSection = section;
+    },
   },
 };
 </script>
 
 <style>
+/* General Layout */
 #app {
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: #f4f6f9;
 }
 
+/* Header Styling */
 header {
-  background-color: #007bff;
+  background-color: #003366;
   color: white;
   padding: 20px;
   text-align: center;
   flex-shrink: 0;
+  font-size: 1.8em;
+  font-weight: bold;
 }
 
-footer {
-  background-color: #f1f1f1;
-  padding: 10px;
-  text-align: center;
-  margin-top: auto;
-  flex-shrink: 0;
+/* Nav Bar Styling */
+.nav-bar {
+  background-color: #004080;
+  padding: 10px 0;
 }
 
+.nav-bar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.nav-bar a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-bar a:hover {
+  background-color: #0059b3;
+  border-radius: 5px;
+}
+
+/* Dashboard Layout */
 .dashboard-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); /* 최소 400px 너비로 설정 */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  justify-content: center;
-  margin-top: 20px;
   padding: 20px;
-  flex-grow: 1;
+  justify-items: center;
 }
 
 .dashboard-box {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 20px;
   background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  height: 100%; /* 박스 높이를 통일 */
-  overflow-y: auto; /* 내부 내용이 길면 스크롤 */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
 }
 
 h2 {
   font-size: 1.5em;
   margin-bottom: 15px;
+  color: #003366;
+  border-bottom: 2px solid #d1d9e6;
+  padding-bottom: 10px;
 }
 
-@media (max-width: 1200px) {
-  .dashboard-container {
-    grid-template-columns: 1fr 1fr; /* 2열 레이아웃 */
-  }
+/* Footer Styling */
+footer {
+  background-color: #003366;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  margin-top: auto;
 }
 
+/* Responsive Design */
 @media (max-width: 800px) {
   .dashboard-container {
-    grid-template-columns: 1fr; /* 모바일에서는 1열 레이아웃 */
+    grid-template-columns: 1fr;
   }
 }
 </style>

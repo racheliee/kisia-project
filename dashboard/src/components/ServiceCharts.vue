@@ -1,97 +1,135 @@
 <template>
-  <div>
-    <!-- <h2>Total and AI Request Counts (Last 6 Months)</h2> -->
-    <canvas id="requestChart"></canvas>
+  <div class="service-charts-container">
+    <h2 class="chart-title">Service Stats</h2>
+    <div class="chart-wrapper">
+      <canvas id="serviceChart"></canvas>
+    </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import Chart from "chart.js/auto";
+import { Chart } from 'chart.js/auto';
+import axios from 'axios';
 
 export default {
   data() {
     return {
-      totalRequests: [], // 총 검사 요청 데이터
-      aiRequests: [], // AI 검사 요청 데이터
-      months: ["April", "May", "June", "July", "August", "September"], // 최근 6개월의 월
-      error: false, // 오류 발생 여부
+      totalRequests: [],
+      aiRequests: [],
+      isLoading: false, // To handle loading state
+      chartInstance: null, // Chart.js instance
+      months: [], // Dynamically adjusted months
     };
   },
   mounted() {
-    this.fetchData();
+    this.initializeMonths(); // Initialize months before rendering chart
+    this.fetchData(); // Fetch monthly data for the current year
   },
   methods: {
-    // 데이터를 받아오는 함수
+    // Initialize months array based on the current month
+    initializeMonths() {
+      const currentMonth = new Date().getMonth(); // 0 = January, 11 = December
+      const monthLabels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      // Rearrange the months so the current month is at the end
+      this.months = [...monthLabels.slice(currentMonth + 1), ...monthLabels.slice(0, currentMonth + 1)];
+    },
     async fetchData() {
+      this.isLoading = true;
+
       try {
-        // 첫 번째 API 호출: 총 요청 수 가져오기
-        const totalResponse = await axios.get("/admin/stats/total-requests?interval=month");
-        this.totalRequests = this.extractLastSixMonthsData(totalResponse.data.totalRequests);
+        // Fetch total requests for the year (monthly data)
+        const totalRequestsResponse = await axios.get('/admin/stats/total-requests?interval=month');
+        this.totalRequests = totalRequestsResponse.data.totalRequests;
 
-        // 두 번째 API 호출: AI 요청 수 가져오기
-        const aiResponse = await axios.get("/admin/stats/ai-requests?interval=month");
-        this.aiRequests = this.extractLastSixMonthsData(aiResponse.data.aiRequests);
+        // Fetch AI requests for the year (monthly data)
+        const aiRequestsResponse = await axios.get('/admin/stats/ai-requests?interval=month');
+        this.aiRequests = aiRequestsResponse.data.aiRequests;
 
-        // 차트를 렌더링
+        // Render the chart with the new data
         this.renderChart();
       } catch (error) {
-        console.error("Error fetching data, using temporary data", error);
-        this.error = true;
-
-        // 오류 시 임시 데이터를 사용
-        const tempData = this.getTemporaryData();
-        this.months = tempData.months;
-        this.totalRequests = tempData.totalRequests;
-        this.aiRequests = tempData.aiRequests;
-
-        // 차트를 렌더링
+        console.error('Error fetching data, using sample data', error);
+        this.useSampleData();
         this.renderChart();
       }
-    },
-    // 최근 6개월 데이터를 추출하는 함수
-    extractLastSixMonthsData(data) {
-      // API에서 받은 데이터는 총 합계일 수 있으므로, 최근 6개월 데이터를 추출
-      return data.slice(Math.max(data.length - 6, 0)); 
-    },
-    // 임시 데이터를 제공하는 함수 (DB 연결 실패 시 사용)
-    getTemporaryData() {
-      return {
-        months: ["April", "May", "June", "July", "August", "September"],
-        totalRequests: [50, 80, 60, 90, 100, 120],
-        aiRequests: [30, 40, 35, 50, 70, 80],
-      };
-    },
-    // 차트를 렌더링하는 함수
-    renderChart() {
-      const ctx = document.getElementById("requestChart").getContext("2d");
 
-      new Chart(ctx, {
-        type: "bar",
+      this.isLoading = false;
+    },
+    useSampleData() {
+      // Sample data when API calls fail
+      this.totalRequests = [50, 80, 60, 100, 90, 120, 50, 80, 60, 100, 90, 120];
+      this.aiRequests = [30, 40, 35, 60, 70, 80, 30, 40, 35, 60, 70, 80];
+    },
+    renderChart() {
+      const ctx = document.getElementById('serviceChart').getContext('2d');
+
+      // Destroy the previous chart instance if it exists
+      if (this.chartInstance) {
+        this.chartInstance.destroy();
+      }
+
+      this.chartInstance = new Chart(ctx, {
+        type: 'bar',
         data: {
-          labels: this.months, // X축에 표시될 월
+          labels: this.months, // Dynamically adjusted months
           datasets: [
             {
-              label: "Total Requests",
+              label: 'Total Requests',
               data: this.totalRequests,
-              backgroundColor: "rgba(75, 192, 192, 0.2)",
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 1,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              hoverBackgroundColor: 'rgba(75, 192, 192, 0.8)',
+              borderRadius: 5,
             },
             {
-              label: "AI Requests",
+              label: 'AI Requests',
               data: this.aiRequests,
-              backgroundColor: "rgba(255, 159, 64, 0.2)",
-              borderColor: "rgba(255, 159, 64, 1)",
-              borderWidth: 1,
+              backgroundColor: 'rgba(255, 159, 64, 0.6)',
+              borderColor: 'rgba(255, 159, 64, 1)',
+              hoverBackgroundColor: 'rgba(255, 159, 64, 0.8)',
+              borderRadius: 5,
             },
           ],
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           scales: {
             y: {
               beginAtZero: true,
+              ticks: {
+                color: '#333',
+              },
+            },
+            x: {
+              ticks: {
+                color: '#333',
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              display: true,
+              labels: {
+                color: '#333',
+                font: {
+                  size: 14,
+                  family: 'Arial',
+                },
+              },
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              bodyFont: {
+                size: 14,
+              },
+              padding: 10,
+              displayColors: false,
+              borderWidth: 1,
+              borderColor: '#333',
             },
           },
         },
@@ -102,9 +140,29 @@ export default {
 </script>
 
 <style scoped>
+.service-charts-container {
+  margin: 0 auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+}
+
+.chart-title {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #003366;
+  margin-bottom: 15px;
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 400px;
+}
+
 canvas {
-  max-width: 900px;
-  margin: 40px auto;
-  height: 500px;
+  max-width: 100%;
+  height: auto;
 }
 </style>
