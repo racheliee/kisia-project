@@ -71,12 +71,12 @@ model History {
 
 model ConfusionMatrix {
   id        Int      @id @default(autoincrement())
-  modelType DETECTOR
+  modelType String   @unique // static, dynamic, ai
   truePos   Int      @default(0)
   trueNeg   Int      @default(0)
   falsePos  Int      @default(0)
   falseNeg  Int      @default(0)
-  f1Score   Float?
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
 
