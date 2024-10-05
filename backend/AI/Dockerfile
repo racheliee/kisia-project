@@ -7,18 +7,23 @@ WORKDIR /app
 # Install system dependencies and Node.js from NodeSource
 RUN apt-get update && apt-get install -y \
     build-essential \
+    python3-dev \
+    libssl-dev \
+    libffi-dev \
+    libpq-dev \ 
     wget \
     curl \
+    gcc \
     && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy and install Python dependencies
 COPY requirements.txt ./
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.txt
 
-# Install Node.js dependencies
+# Copy and install Node.js dependencies
 COPY package*.json ./
 RUN npm install
 
