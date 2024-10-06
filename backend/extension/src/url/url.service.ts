@@ -40,11 +40,8 @@ export class UrlService {
     // if not, check external APIs
     const apiCheckResult = await this.checkExternalApis(url);
 
-    if (apiCheckResult) {
-      this.saveToDatabase(url, true);
-      this.logger.log('Adding to database:', url);
-    }
-
+    this.saveToDatabase(url, apiCheckResult);
+    this.logger.log(`Saved to database: ${url}`);
     this.logger.log(`API check result: ${apiCheckResult}`);
 
     return {
@@ -60,6 +57,7 @@ export class UrlService {
       data: {
         url: url,
         isMalicious: isMalicious,
+        detectedBy: 'API',
         accessCount: 1,
       },
     });
