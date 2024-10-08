@@ -99,12 +99,15 @@ def run_static_model():
         with open(path + file, 'r') as f:
             entire_js_script.append(f.read())
 
-    return static_model.predict(entire_js_script)
+    preds = static_model.predict(entire_js_script)
+    
+    return [p for p in preds if p is not None]
 
 
 # run dynamic model
 def run_dynamic_model():
-    return dynamic_model.predict(js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
+    preds = dynamic_model.predict(js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
+    return [p for p in preds if p is not None]
 
 
 # combine results from all models =================================
@@ -124,6 +127,11 @@ def combine_results(urlres, sres, dres):
     # combine url and s_d_res
     # combined_pred = 0.1 * (urlres[0]['confidence'] if urlres[0]['prediction']
     #                        == 'malicious' else 1 - urlres[0]['confidence']) + 0.9 * max(s_d_res)
+    
+    # url, static, dynamic 결과가 비어있으면 False, 0.0 반환
+    if not urlres or not sres or not dres:
+        app_logger.error("Error combining results: Empty results")
+        return False, 0.0
 
     # confidence 최대 값으로 prediction 결정
     s_max = max(sres, key=lambda x: x['confidence'])
@@ -175,6 +183,7 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
     ON CONFLICT (url)
     DO UPDATE SET
         "isMalicious" = EXCLUDED."isMalicious",
+        "detectedBy" = EXCLUDED."detectedBy",
         "urlResult" = EXCLUDED."urlResult",
         "staticResult" = EXCLUDED."staticResult",
         "dynamicResult" = EXCLUDED."dynamicResult",
