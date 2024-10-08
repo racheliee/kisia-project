@@ -79,6 +79,7 @@ export class AuthService {
     return user;
   }
 
+  // generate access token
   async generateAccessToken(user: User) {
     const payload: JwtPayload = {
       id: user.id,
@@ -96,6 +97,7 @@ export class AuthService {
     return accessToken;
   }
 
+  // generate refresh token
   async generateRefreshToken(user: User) {
     const payload: JwtPayload = {
       id: user.id,
@@ -142,13 +144,14 @@ export class AuthService {
     };
   }
 
+  // refresh access token
   async refresh(refreshToken: string) {
     try{
       const { id } = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
-      this.logger.log('Refresh token verified');
+      this.logger.log('Refresh token verified for refresh');
 
       // check if refresh token matches
       const user = await this.userService.getUserIfRefreshTokenMatches(refreshToken, id);
@@ -169,4 +172,23 @@ export class AuthService {
       }
     }
   }
+
+  // logout user
+  async logout(refreshToken: string){
+    try{
+      const { id } = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      this.logger.log('Refresh token verified for logout');
+
+      await this.userService.update(id, { refreshToken: null });
+
+      return;
+    } catch (error) {
+      this.logger.error('Error verifying refresh token for logout', error);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
 }

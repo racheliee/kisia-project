@@ -42,7 +42,8 @@ export class AuthController {
   ) {
     try {
       const user = await this.authService.validateUser(loginDTO);
-      const { access_token, refresh_token } = await this.authService.login(user);
+      const { access_token, refresh_token } =
+        await this.authService.login(user);
 
       // set cookies
       res.setHeader('Authorization', `Bearer ${access_token} ${refresh_token}`);
@@ -72,7 +73,7 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    this.logger.log("hello");
+    this.logger.log('hello');
     try {
       const refreshToken = req.cookies['refresh_token'];
       this.logger.log(`refresh token ${refreshToken}`);
@@ -82,10 +83,14 @@ export class AuthController {
       }
 
       // validate & refresh token
-      const { accessToken, newRefreshToken } = await this.authService.refresh(refreshToken);
+      const { accessToken, newRefreshToken } =
+        await this.authService.refresh(refreshToken);
 
       // set cookies
-      res.setHeader('Authorization', `Bearer ${accessToken} ${newRefreshToken}`);
+      res.setHeader(
+        'Authorization',
+        `Bearer ${accessToken} ${newRefreshToken}`,
+      );
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: true,
@@ -111,5 +116,37 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout() {}
+  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+    try {
+      const refreshToken = req.cookies['refresh_token'];
+
+      if (!refreshToken) {
+        throw new BadRequestException('No refresh token provided');
+      }
+
+      await this.authService.logout(refreshToken);
+
+      // clear cookies
+      res.clearCookie('access_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
+      res.clearCookie('refresh_token', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      });
+
+      this.logger.log(`User logged out successfully`);
+
+      return {
+        statusCode: 200,
+        message: 'User logged out successfully',
+      };
+    } catch (error) {
+      this.logger.error(`Error logging out user`, error);
+      throw new BadRequestException(`Error logging out user: ${error.message}`);
+    }
+  }
 }
