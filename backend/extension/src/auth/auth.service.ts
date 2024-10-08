@@ -166,8 +166,10 @@ export class AuthService {
       return { accessToken, newRefreshToken };
     } catch (error) {
       if(error.name === 'TokenExpiredError') {
+        this.logger.error('Refresh token expired', error);
         throw new UnauthorizedException('Refresh token expired');
       } else {
+        this.logger.error('Error verifying refresh token for refresh', error);
         throw new UnauthorizedException('Invalid refresh token');
       }
     }

@@ -39,11 +39,10 @@ export class UserService {
 
   // check if refresh toekn matches with user
   async getUserIfRefreshTokenMatches(refreshToken: string, userId: string) {
-    this.logger.log('Checking if refresh token matches user');
     const user = await this.findOne(userId);
 
     if (!user || !user.refreshToken) {
-      this.logger.log('User not found or no refresh token');
+      this.logger.error('User not found or no refresh token');
       return null;
     }
 
