@@ -1,4 +1,4 @@
-# vue_dashboard
+# admin_dashboard
 
 ## Project setup
 ```
