@@ -34,6 +34,7 @@ model User {
   dailyRequests Int       @default(0) // number of requests made by the user in a day; resets at 00:00
   requestsLimit Int       @default(3) // number of requests allowed per day for free users
   lastLogin     DateTime? // last login time
+  refreshToken  String?   // used for refreshing access token
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
