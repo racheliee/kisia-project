@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { SignUpDTO } from './dto/signup.dto';
@@ -29,6 +30,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
+  private readonly logger = new Logger(AuthService.name);
 
   async signup(signUpDTO: SignUpDTO) {
     // check if user exists
@@ -77,8 +79,7 @@ export class AuthService {
     return user;
   }
 
-  // login user
-  async login(user: User) {
+  async generateAccessToken(user: User) {
     const payload: JwtPayload = {
       id: user.id,
       username: user.username,
@@ -86,11 +87,22 @@ export class AuthService {
       lastLogin: user.lastLogin,
     };
 
-    // generate access and refresh tokens
+    // generate access token
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: this.configService.get<string>('JWT_EXPIRATION_TIME'),
     });
+
+    return accessToken;
+  }
+
+  async generateRefreshToken(user: User) {
+    const payload: JwtPayload = {
+      id: user.id,
+      username: user.username,
+      type: user.type,
+      lastLogin: user.lastLogin,
+    };
 
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -111,6 +123,16 @@ export class AuthService {
       refreshToken: hashedRefreshToken,
     });
 
+    return refreshToken;
+  }
+
+  // login user
+  async login(user: User) {
+
+    // generate access and refresh tokens
+    const accessToken = await this.generateAccessToken(user);
+    const refreshToken = await this.generateRefreshToken(user);
+
     // update last login
     await this.userService.update(user.id, { lastLogin: new Date() });
 
@@ -118,5 +140,33 @@ export class AuthService {
       access_token: accessToken,
       refresh_token: refreshToken,
     };
+  }
+
+  async refresh(refreshToken: string) {
+    try{
+      const { id } = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      this.logger.log('Refresh token verified');
+
+      // check if refresh token matches
+      const user = await this.userService.getUserIfRefreshTokenMatches(refreshToken, id);
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // generate new access and refresh tokens
+      const accessToken = await this.generateAccessToken(user);
+      const newRefreshToken = await this.generateRefreshToken(user);
+
+      return { accessToken, newRefreshToken };
+    } catch (error) {
+      if(error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Refresh token expired');
+      } else {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+    }
   }
 }
