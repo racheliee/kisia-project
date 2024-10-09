@@ -87,7 +87,8 @@ export default {
         }
       } catch (error) {
         if (error.response) {
-          this.errorMessage = error.response.data.message;
+          // Display specific error messages from the API response
+          this.errorMessage = error.response.data.message || "An error occurred during login.";
         } else {
           this.errorMessage = "An error occurred during login.";
         }
@@ -96,6 +97,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .login-page {
