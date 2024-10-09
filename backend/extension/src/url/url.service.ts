@@ -1,17 +1,27 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UseGuards } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WebRiskServiceClient, protos } from '@google-cloud/web-risk';
+import { ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserService } from 'src/user/user.service';
+import { create } from 'domain';
+import { DETECTOR } from '@prisma/client';
 
 @Injectable()
+@UseGuards(JwtAuthGuard)
 export class UrlService {
   private readonly logger = new Logger(UrlService.name);
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+  ) {}
   private readonly webriskServiceClient = new WebRiskServiceClient({
-    apiKey: process.env.GOOGLE_WEB_RISK_API_KEY,
+    apiKey: this.configService.get<string>('GOOGLE_WEB_RISK_API_KEY'),
   });
-  constructor(private readonly prismaService: PrismaService) {}
 
   // Process URL (check with db and API)==============================================
-  async processUrl(url: string) {
+  async processUrl(url: string, userId: string) {
     // check if url exists in our own database
     const databaseResult = await this.prismaService.url.findUnique({
       where: { url: url },
@@ -29,6 +39,10 @@ export class UrlService {
 
       this.logger.log(`Found in database: ${url}`);
 
+      // save to user history
+      this.saveToUserHistory(url, userId, databaseResult.isMalicious, 'DATABASE');
+      this.logger.log(`Saved to user history: ${url}`);
+
       // return value
       return {
         url: databaseResult.url,
@@ -40,7 +54,10 @@ export class UrlService {
     // if not, check external APIs
     const apiCheckResult = await this.checkExternalApis(url);
 
+    // save to user history and database
+    this.saveToUserHistory(url, userId, apiCheckResult, 'API');
     this.saveToDatabase(url, apiCheckResult);
+    this.logger.log(`Saved to user history: ${url}`);
     this.logger.log(`Saved to database: ${url}`);
     this.logger.log(`API check result: ${apiCheckResult}`);
 
@@ -49,6 +66,18 @@ export class UrlService {
       isMalicious: apiCheckResult,
       source: 1,
     };
+  }
+
+  // Save to user history ==========================================================
+  async saveToUserHistory(url: string, userId: string, isMalicious: boolean, detectedBy: DETECTOR) {
+    return await this.prismaService.history.create({
+      data:{
+        userId: userId,
+        url: url,
+        isMalicious: isMalicious,
+        detectedBy: detectedBy,
+      }
+    });
   }
 
   // Save to database =============================================================
@@ -81,7 +110,8 @@ export class UrlService {
     const base_url = new URL('https://linkshieldapi.com/api/v1/link/score');
 
     const headers = {
-      Authorization: 'Bearer ' + process.env.LINK_SHIELD_API_KEY,
+      Authorization:
+        'Bearer ' + this.configService.get<string>('LINK_SHIELD_API_KEY'),
       'Content-Type': 'application/json',
       Accept: 'application/json',
     };
@@ -127,7 +157,10 @@ export class UrlService {
     const base_url = new URL(
       'https://endpoint.apivoid.com/urlrep/v1/pay-as-you-go/',
     );
-    base_url.searchParams.append('key', process.env.URL_VOID_API_KEY);
+    base_url.searchParams.append(
+      'key',
+      this.configService.get<string>('URL_VOID_API_KEY'),
+    );
     base_url.searchParams.append('url', url);
 
     try {

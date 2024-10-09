@@ -10,6 +10,8 @@ import colorlog
 from dotenv import load_dotenv
 from flask_cors import CORS
 import os
+import jwt
+from functools import wraps
 
 # Basic Set up ==================================================
 load_dotenv()  # Load environment variables
@@ -19,7 +21,11 @@ dynamic_weight = float(os.getenv("DYNAMIC_WEIGHT"))
 static_weight = float(os.getenv("STATIC_WEIGHT"))
 
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, supports_credentials=True)
+
+# load jwt
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 # Logging =======================================================
 app_handler = colorlog.StreamHandler()
@@ -72,6 +78,35 @@ js_path = "js_files"
 if not os.path.exists(f"{base_folder}/{js_storage_path}"):
     os.makedirs(f"{base_folder}/{js_storage_path}")
 
+
+# middleware for jwt protection ==================================
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get('access_token')
+        app_logger.info(f"Token: {token}")
+        if not token:
+            return jsonify({
+                "statusCode": 401,
+                "message": "Unauthorized"
+            }), 401
+        
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            request.user = payload
+        except jwt.ExpiredSignatureError:
+            return jsonify({
+                "statusCode": 401,
+                "message": "Unauthorized. Token expired"
+            }), 401
+        except jwt.InvalidTokenError:
+            return jsonify({
+                "statusCode": 401,
+                "message": "Unauthorized. Invalid token"
+            }), 401
+        
+        return f(*args, **kwargs)
+    return decorated_function
 
 # functions to run each ai model =================================
 # extract js files and save them to generated folder
@@ -214,6 +249,7 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
 
 # endpoint for url ai-check ======================================
 @app.route('/url/ai', methods=['POST'])
+@login_required # jwt protection
 def process_url():
     data = request.get_json()
 
