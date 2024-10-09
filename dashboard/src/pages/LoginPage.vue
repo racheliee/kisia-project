@@ -54,21 +54,21 @@ export default {
     };
   },
   methods: {
-    async handleLogin() {
-      // Check for test account credentials
-      const testLoginId = "admin";
-      const testPassword = "admin";
+    // async handleLogin() {
+    //   // Check for test account credentials
+    //   const testLoginId = "admin";
+    //   const testPassword = "admin";
 
-      // Hardcoded login for test account
-      if (this.loginId === testLoginId && this.password === testPassword) {
-        // Store mock tokens for the test session
-        localStorage.setItem("access_token", "testAccessToken");
-        localStorage.setItem("refresh_token", "testRefreshToken");
+    //   // Hardcoded login for test account
+    //   if (this.loginId === testLoginId && this.password === testPassword) {
+    //     // Store mock tokens for the test session
+    //     localStorage.setItem("access_token", "testAccessToken");
+    //     localStorage.setItem("refresh_token", "testRefreshToken");
 
-        alert("Test login successful!");
-        this.$router.push({ name: "DashboardPage" });
-        return;
-      }
+    //     alert("Test login successful!");
+    //     this.$router.push({ name: "DashboardPage" });
+    //     return;
+    //   }
 
       // Regular API call for real login credentials
       try {
