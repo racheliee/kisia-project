@@ -92,4 +92,28 @@ export class UserService {
 
     return;
   }
+
+  // get history
+  async getHistory(userId: string) {
+    const userHistory = await this.prismaService.user.findMany({
+      where: {id: userId},
+      select: {
+        urlsAccessed: {
+          select: {
+            url: true,
+            isMalicious: true,
+            createdAt: true,
+          }
+        }
+      }
+    });
+
+    if (!userHistory || userHistory.length === 0){
+      return [];
+    }
+
+    this.logger.log(`User history: ${JSON.stringify(userHistory)}`);
+
+    return userHistory;
+  }
 }
