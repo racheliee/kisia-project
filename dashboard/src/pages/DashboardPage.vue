@@ -62,9 +62,7 @@ import ConfidenceHistogram from "@/components/ConfidenceHistogram.vue";
 import ConfusionMatrix from "@/components/ConfusionMatrix.vue";
 import UserStats from "@/components/UserStats.vue";
 
-// Chart.js 요소와 플러그인을 등록
 import { Chart, PointElement, LineElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
-
 Chart.register(PointElement, LineElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 export default {
@@ -80,8 +78,15 @@ export default {
     ConfidenceHistogram,
     UserStats,
   },
+  mounted() {
+    if (!localStorage.getItem("access_token")) {
+      // Redirect to login if not authenticated
+      this.$router.push({ path: "/login" });
+    }
+  }
 };
 </script>
+
 
 <style scoped>
 .dashboard {

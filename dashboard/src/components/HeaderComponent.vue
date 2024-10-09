@@ -5,7 +5,7 @@
       <img src="@/assets/logo.png" alt="Logo" class="logo" />
       <h1>Database Dashboard</h1>
     </div>
-    
+
     <div class="header-right">
       <!-- Admin 텍스트와 로그아웃 버튼 -->
       <span class="admin-text">Welcome, Admin</span>
@@ -19,9 +19,11 @@ export default {
   name: "HeaderComponent",
   methods: {
     logout() {
-      // 로그아웃 로직 추가 (예: API 호출 후 리다이렉트)
-      alert("You have been logged out.");
-      // 실제 로그아웃 시에는 Vue Router로 로그인 페이지로 이동하거나 처리합니다.
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
+      alert("Logged out successfully.");
+      this.$router.push("/"); // Redirect to home page
     },
   },
 };
