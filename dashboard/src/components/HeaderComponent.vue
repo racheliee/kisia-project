@@ -3,13 +3,13 @@
     <div class="header-left">
       <!-- 로고 -->
       <img src="@/assets/logo.png" alt="Logo" class="logo" />
-      <h1>Database</h1>
+      <h1>Database Dashboard</h1>
     </div>
     
     <div class="header-right">
       <!-- Admin 텍스트와 로그아웃 버튼 -->
-      <span class="admin-text">Admin</span>
-      <button @click="logout" class="logout-button">로그아웃</button>
+      <span class="admin-text">Welcome, Admin</span>
+      <button @click="logout" class="logout-button">Logout</button>
     </div>
   </header>
 </template>
@@ -20,7 +20,7 @@ export default {
   methods: {
     logout() {
       // 로그아웃 로직 추가 (예: API 호출 후 리다이렉트)
-      alert("로그아웃 되었습니다.");
+      alert("You have been logged out.");
       // 실제 로그아웃 시에는 Vue Router로 로그인 페이지로 이동하거나 처리합니다.
     },
   },
@@ -32,44 +32,63 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
+  padding: 20px 40px;
+  background-color: #ffffff;
+  border-bottom: 2px solid #e0e0e0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .logo {
-  height: 40px; /* 로고 크기 조절 */
+  height: 50px; /* 로고 크기 조절 */
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.1);
+}
+
+h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+h1:hover {
+  color: #42a5f5;
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
 
 .admin-text {
   font-weight: bold;
-  font-size: 16px;
-  color: #333;
+  font-size: 18px;
+  color: #555;
 }
 
 .logout-button {
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 14px;
-  color: #fff;
-  background-color: #42a5f5;
+  color: #ffffff;
+  background-color: #ff6f61;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .logout-button:hover {
-  background-color: #1e88e5;
+  background-color: #e64a19;
+  transform: scale(1.05);
 }
 </style>

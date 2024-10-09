@@ -7,44 +7,46 @@
     <!-- 상단 요약 카드 섹션 -->
     <div class="summary-cards">
       <SummaryCard title="총 검사 요청" />
-      <SummaryCard title="AI 검사 요청" />
+      <SummaryCard title="총 AI 검사 요청" />
       <SummaryCard title="총 URL 갯수" />
-      <SummaryCard title="총 사용자 수" />
+      <SummaryCard title="DB Size" />
     </div>
 
-    <!-- Top 5 섹션 -->
-    <div class="top5-section">
-      <h2>Top 5 URLs</h2>
-      <Top5Chart />
+    <!-- 주요 그래프 섹션 -->
+    <div class="main-charts">
+      <div class="chart-card top5-section">
+        <Top5Chart />
+      </div>
+      
+      <div class="chart-card">
+        <BarChart title="All Requests" />
+      </div>
     </div>
 
-    <div class="db-overview">
+    <!-- DB Overview 섹션 -->
+    <div class="chart-card db-overview full-width">
       <TimeRangeChart title="URL 검사 갯수 (일/주/월)" />
-
     </div>
 
-    <!-- 그래프 섹션 -->
-    <div class="graph-section">
-      <BarChart title="월별 검사 요청" />
-      <LineChart title="DB 크기 변화" />
+    <!-- Confusion Matrix와 Hit Rate 섹션 -->
+    <div class="confusion-hit-section">
+      <div class="chart-card rm-background">
+        <ConfusionMatrix />
+        <div class="info-card url-db-section">
+          <h2>악성 URL DB</h2>
+          <UrlSearchBar />
+        </div>
+      </div>
+      <div class="chart-card">
+        <ConfidenceHistogram />
+      </div>
     </div>
 
-    <!-- 악성 URL DB 섹션 -->
-    <div class="url-db-section">
-      <h2>악성 URL DB</h2>
-      <UrlSearchBar />
-    </div>
-
-    <div class="confusion-matix_and_hit-rate">
-      <!-- <ConfusionMatrix/>
-      <ConfidenceHistogram/> -->
-    </div>
-
-    <!-- 사용자 통계 섹션 -->
-    <div class="user-stats-section">
-      <SummaryCard title="총 활성 사용자" />
-      <SummaryCard title="이번 달 신규 회원" />
-      <UserHistoryLogs />
+    <!-- 악성 URL DB 및 사용자 통계 섹션 -->
+    <div class="url-and-user-stats">
+      <div class="info-card user-stats-section">
+        <UserStats />
+      </div>
     </div>
   </div>
 </template>
@@ -53,13 +55,17 @@
 import HeaderComponent from "@/components/HeaderComponent.vue";
 import SummaryCard from "@/components/SummaryCard.vue";
 import BarChart from "@/components/BarChart.vue";
-import LineChart from "@/components/LineChart.vue";
 import Top5Chart from "@/components/Top5Chart.vue";
 import UrlSearchBar from "@/components/UrlSearchBar.vue";
-import UserHistoryLogs from "@/components/UserHistoryLogs.vue";
-import TimeRangeChart from "@/components/TimeRangeChart.vue"; 
-// import ConfidenceHistogram from "@/components/ConfidenceHistogram.vue";
-// import ConfusionMatrix from "@/components/ConfusionMatrix.vue";
+import TimeRangeChart from "@/components/TimeRangeChart.vue";
+import ConfidenceHistogram from "@/components/ConfidenceHistogram.vue";
+import ConfusionMatrix from "@/components/ConfusionMatrix.vue";
+import UserStats from "@/components/UserStats.vue";
+
+// Chart.js 요소와 플러그인을 등록
+import { Chart, PointElement, LineElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+
+Chart.register(PointElement, LineElement, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 export default {
   name: "DashboardPage",
@@ -67,13 +73,12 @@ export default {
     HeaderComponent,
     SummaryCard,
     BarChart,
-    LineChart,
     Top5Chart,
     UrlSearchBar,
-    UserHistoryLogs,
     TimeRangeChart,
-    // ConfusionMatrix,
-    // ConfidenceHistogram,
+    ConfusionMatrix,
+    ConfidenceHistogram,
+    UserStats,
   },
 };
 </script>
@@ -83,40 +88,87 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 30px;
-  padding: 20px;
+  padding: 30px;
+  background-color: #f5f6fa;
 }
 
 /* 상단 요약 카드 */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 25px;
 }
 
-/* Top 5 섹션 */
-.top5-section {
+/* 메인 차트 섹션 (Top 5) */
+.main-charts {
+  display: flex;
+  gap: 25px;
+}
+
+/* 부차적 차트 섹션 (Total Revenue 및 Customer Map) */
+.secondary-charts {
+  display: flex;
+  gap: 25px;
+}
+
+.main-charts .chart-card {
+  flex: 1; /* 좌우 차트가 동일하게 커지도록 설정 */
+}
+
+/* 차트 카드 스타일 */
+.chart-card {
   padding: 20px;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.chart-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.15);
 }
 
-/* 그래프 섹션 */
-.graph-section {
+/* DB Overview 섹션 전체 폭 사용 */
+.db-overview.full-width {
+  width: 100%;
+  padding: 0;
+}
+
+/* 악성 URL DB 및 사용자 통계 섹션 (옆으로 배치) */
+.url-and-user-stats {
+  display: flex;
+  gap: 25px;
+}
+
+/* 정보 카드 스타일 (악성 URL DB, 사용자 통계) */
+.info-card {
+  flex: 1;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Confusion Matrix와 Hit Rate 섹션 */
+.confusion-hit-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 25px;
 }
 
-/* 악성 URL DB 섹션 */
-.url-db-section {
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
+.rm-background {
+  box-shadow: none;
 }
 
-/* 사용자 통계 섹션 */
-.user-stats-section {
-  display: flex;
-  gap: 20px;
-  align-items: center;
+/* 타이틀 스타일링 */
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
 }
 </style>

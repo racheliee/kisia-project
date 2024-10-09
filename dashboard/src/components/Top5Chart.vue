@@ -1,5 +1,6 @@
 <template>
   <div class="top5-chart">
+    <h2>Top 5 Reports</h2>
     <!-- Tab Buttons -->
     <div class="tab-buttons">
       <button
@@ -14,7 +15,6 @@
 
     <!-- Display only the selected chart -->
     <div class="chart-content">
-      <h3>{{ tabs[activeTab].label }}</h3>
       <Bar
         v-if="tabs[activeTab]"
         :data="getChartData(tabs[activeTab].data)"
@@ -25,10 +25,11 @@
 </template>
 
 <script>
+import axios from "axios";
 import { Bar } from "vue-chartjs";
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title } from "chart.js";
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip } from "chart.js";
 
-ChartJS.register(BarElement, CategoryScale, LinearScale, Title);
+ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
 
 export default {
   name: "Top5Chart",
@@ -40,7 +41,7 @@ export default {
       activeTab: 0,
       tabs: [
         {
-          label: "Access Count TOP 5",
+          label: "Access Count",
           data: [
             { label: "URL1", value: 50 },
             { label: "URL2", value: 40 },
@@ -50,7 +51,7 @@ export default {
           ],
         },
         {
-          label: "False Negative Report TOP 5",
+          label: "False Negative Report",
           data: [
             { label: "URL1", value: 45 },
             { label: "URL2", value: 10 },
@@ -60,7 +61,7 @@ export default {
           ],
         },
         {
-          label: "False Positive Report TOP 5",
+          label: "False Positive Report",
           data: [
             { label: "URL1", value: 42 },
             { label: "URL2", value: 32 },
@@ -72,60 +73,100 @@ export default {
       ],
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
         indexAxis: "y",
         plugins: {
-          legend: {
-            display: false,
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: "#333",
+            titleFont: { size: 14, weight: "bold" },
+            bodyFont: { size: 12 },
+            bodySpacing: 5,
+            padding: 10,
           },
         },
         scales: {
-          x: {
-            beginAtZero: true,
-          },
+          x: { beginAtZero: true, grid: { color: "#f0f0f0" } },
+          y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 14 }, color: "#555" } },
         },
       },
     };
   },
   methods: {
+    async fetchData() {
+      try {
+        const [accessCountRes, fnRes, fpRes] = await Promise.all([
+          axios.get("/admin/top-accessed-urls"),
+          axios.get("/admin/top-false-negatives"),
+          axios.get("/admin/top-false-postives"),
+        ]);
+
+        this.tabs[0].data = accessCountRes.data.map(item => ({ label: item.url, value: item.accessCount }));
+        this.tabs[1].data = fnRes.data.map(item => ({ label: item.url, value: item.fnCount }));
+        this.tabs[2].data = fpRes.data.map(item => ({ label: item.url, value: item.fpCount }));
+      } catch (error) {
+        console.error("Failed to fetch data, using default values:", error);
+      }
+    },
     getChartData(data) {
       return {
-        labels: data.map((item) => item.label),
+        labels: data.map(item => item.label),
         datasets: [
           {
             label: this.tabs[this.activeTab].label,
-            data: data.map((item) => item.value),
-            backgroundColor: "#42A5F5",
+            data: data.map(item => item.value),
+            backgroundColor: "rgba(66, 165, 245, 0.6)",
+            borderColor: "#42A5F5",
+            borderWidth: 1,
+            borderRadius: 10,
+            hoverBackgroundColor: "#1e88e5",
           },
         ],
       };
     },
+  },
+  mounted() {
+    this.fetchData();
   },
 };
 </script>
 
 <style scoped>
 .top5-chart {
-  /* text-align: center; */
   max-width: 600px;
-  border-radius: 8px;
-  padding: 20px;
+  margin: auto;
+  padding: 25px;
+  border-radius: 15px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
 }
 
 .tab-buttons {
   display: flex;
+  justify-content: space-around;
   gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 button {
-  padding: 8px 16px;
+  padding: 10px 18px;
   font-size: 14px;
   cursor: pointer;
-  /* background-color: #f0f0f0; */
+  background-color: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-3px);
 }
 
 button.active {
@@ -135,8 +176,7 @@ button.active {
 }
 
 .chart-content {
-  padding: 10px;
-  max-height: 500px; /* Limit the chart's max height */
-  overflow: hidden;
+  padding: 15px;
+  height: 300px;
 }
 </style>

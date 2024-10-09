@@ -1,51 +1,60 @@
 <template>
   <div class="url-search-bar">
-    <button @click="openModal">URL 검색</button>
+    <button @click="openModal" class="search-button">URL 검색</button>
 
     <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
       <div class="modal" @click.stop>
-        <header>
+        <header class="modal-header">
           <h3>URL 검색</h3>
-          <button class="close" @click="closeModal">X</button>
+          <button class="close" @click="closeModal">&times;</button>
         </header>
-        <main>
+        <main class="modal-main">
           <input 
             type="text" 
             v-model="query" 
             placeholder="검색할 URL을 입력하세요..." 
             @keyup.enter="searchUrl" 
+            class="search-input"
           />
-          <button @click="searchUrl">검색</button>
+          <button @click="searchUrl" class="search-button">검색</button>
 
           <div v-if="urlData.length > 0" class="url-info">
             <h4>검색 결과</h4>
             <div v-for="(url, index) in paginatedUrls" :key="index" class="url-item">
-              <p>URL: {{ url.url }}</p>
-              <p>Status: {{ url.status }}</p>
-              <button @click="showDetails(url)">자세히 보기</button>
+              <p class="url-item-text"><strong>URL:</strong> {{ url.url }} &nbsp;&nbsp; <strong>Status:</strong> {{ url.status }}</p>
+              <button @click="showDetails(url)" class="details-button">자세히 보기</button>
             </div>
 
             <div class="pagination">
-              <button @click="prevPage" :disabled="currentPage === 1">&lt;</button>
+              <button @click="prevPage" :disabled="currentPage === 1" class="pagination-button">&lt;</button>
               <span>페이지 {{ currentPage }} / {{ totalPages }}</span>
-              <button @click="nextPage" :disabled="currentPage === totalPages">&gt;</button>
+              <button @click="nextPage" :disabled="currentPage === totalPages" class="pagination-button">&gt;</button>
             </div>
           </div>
 
-          <p v-else-if="errorMessage">{{ errorMessage }}</p>
+          <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
         </main>
+        <button class="close-modal-button" @click="closeModal">닫기</button>
       </div>
     </div>
 
     <div v-if="selectedUrl" class="details-modal">
       <div class="modal-content">
-        <p>URL: {{ selectedUrl.url }}</p>
-        <p>Created: {{ selectedUrl.created }}</p>
-        <p>Access Count: {{ selectedUrl.accessCount }}</p>
-        <p>Status: {{ selectedUrl.status }}</p>
-        <p>Source: {{ selectedUrl.source }}</p>
-        <p>Confidence Score: {{ selectedUrl.confidenceScore }}</p>
-        <button @click="closeDetails">닫기</button>
+        <header class="modal-header">
+          <h3>URL 세부 정보</h3>
+          <button class="close" @click="closeDetails">&times;</button>
+        </header>
+        <div class="modal-body">
+          <p><strong>URL:</strong> {{ selectedUrl.url }}</p>
+          <p><strong>Created:</strong> {{ selectedUrl.created }}</p>
+          <p><strong>Access Count:</strong> {{ selectedUrl.accessCount }}</p>
+          <p><strong>Status:</strong> {{ selectedUrl.status }}</p>
+          <p><strong>Source:</strong> {{ selectedUrl.source }}</p>
+          <p><strong>Confidence Score:</strong> {{ selectedUrl.confidenceScore }}</p>
+        </div>
+        <footer class="modal-footer">
+          <button @click="closeDetails" class="close-details-button">닫기</button>
+        </footer>
       </div>
     </div>
   </div>
@@ -59,12 +68,30 @@ export default {
   data() {
     return {
       query: "",
-      urlData: [],
+      urlData: [
+        {
+          url: "http://example1.com",
+          created: "2024-01-01",
+          accessCount: 100,
+          status: "malicious",
+          source: "user_submission",
+          confidenceScore: 90,
+        },
+        {
+          url: "http://example2.com",
+          created: "2024-02-15",
+          accessCount: 75,
+          status: "safe",
+          source: "system_analysis",
+          confidenceScore: 95,
+        },
+        // additional sample data
+      ],
       errorMessage: "",
       selectedUrl: null,
       isModalVisible: false,
       currentPage: 1,
-      itemsPerPage: 5, // 검색 결과를 5개씩 보여줍니다.
+      itemsPerPage: 5,
     };
   },
   computed: {
@@ -79,11 +106,10 @@ export default {
   methods: {
     openModal() {
       this.isModalVisible = true;
-      this.query = ""; // 초기화
-      this.urlData = [];
+      this.query = "";
       this.errorMessage = "";
       this.selectedUrl = null;
-      this.currentPage = 1; // 페이지 초기화
+      this.currentPage = 1;
     },
     closeModal() {
       this.isModalVisible = false;
@@ -96,277 +122,26 @@ export default {
 
       this.errorMessage = "";
       try {
-        const response = await axios.get(`/api/url-info?query=${this.query}`);
-        this.urlData = response.data;
-        this.currentPage = 1; // 검색 후 첫 페이지로 리셋
+        const response = await axios.post("/admin/url-search", { url: this.query });
+        
+        if (response.data.found) {
+          this.urlData = [
+            {
+              url: response.data.url,
+              created: response.data.created_at,
+              accessCount: response.data.accessCount,
+              status: response.data.isMalicious ? "malicious" : "safe",
+              source: response.data.detectedBy,
+              confidenceScore: Math.round(response.data.confidenceScore * 100),
+            },
+          ];
+          this.currentPage = 1;
+        } else {
+          this.errorMessage = "URL을 찾을 수 없습니다.";
+        }
       } catch (error) {
         console.error("Failed to fetch URL data:", error);
-
-        // 임시 데이터로 설정
-        this.urlData = [
-          {
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },{
-            url: this.query,
-            created: "2023-01-01",
-            accessCount: 42,
-            status: "malicious",
-            source: "user_submission",
-            confidenceScore: 85,
-          },
-        ];
-
-        this.errorMessage = "서버 데이터를 불러오지 못했습니다. 임시 데이터를 표시합니다.";
+        this.errorMessage = "서버 데이터를 불러오지 못했습니다.";
       }
     },
     showDetails(url) {
@@ -389,25 +164,27 @@ export default {
 };
 </script>
 
+
+
 <style scoped>
 .url-search-bar {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 20px;
 }
 
-button {
-  padding: 10px 15px;
+.search-button {
+  padding: 12px 20px;
   font-size: 16px;
   background-color: #42a5f5;
   color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
 
-button:hover {
+.search-button:hover {
   background-color: #1e88e5;
   transform: scale(1.05);
 }
@@ -418,7 +195,7 @@ button:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -426,63 +203,121 @@ button:hover {
 
 .modal {
   background: white;
-  border-radius: 10px;
-  padding: 25px;
+  border-radius: 12px;
+  padding: 30px;
   width: 450px;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease;
 }
 
-header {
+.modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .close {
   border: none;
   background: transparent;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 24px;
   color: #ff3d00;
+  transition: color 0.3s;
 }
 
-input {
+.close:hover {
+  color: #d32f2f;
+}
+
+.close-modal-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ff3d00;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 15px;
+}
+
+.close-modal-button:hover {
+  background-color: #d32f2f;
+}
+
+.search-input {
   padding: 12px;
   font-size: 16px;
   border: 2px solid #42a5f5;
-  border-radius: 5px;
+  border-radius: 8px;
   width: 100%;
   margin-bottom: 15px;
   transition: border-color 0.3s;
 }
 
-input:focus {
+.search-input:focus {
   border-color: #1e88e5;
   outline: none;
 }
 
 .url-info {
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .url-item {
-  margin-bottom: 15px;
-  padding: 15px;
+  margin-bottom: 8px;
+  padding: 10px;
   border: 1px solid #e0e0e0;
-  border-radius: 5px;
+  border-radius: 8px;
   background: #f9f9f9;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.url-item-text {
+  font-size: 14px;
+  margin: 0;
+}
+
+.details-button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background-color: #66bb6a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.details-button:hover {
+  background-color: #43a047;
+  transform: scale(1.05);
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.pagination-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.pagination-button:hover {
+  background-color: #e0e0e0;
 }
 
 .details-modal {
@@ -491,8 +326,9 @@ input:focus {
   left: 50%;
   transform: translateX(-50%);
   background: white;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 30px;
+  width: 450px;
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
   z-index: 1000;
 }
@@ -501,8 +337,26 @@ input:focus {
   margin-top: 10px;
 }
 
-p {
-  margin: 5px 0;
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.close-details-button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.close-details-button:hover {
+  background-color: #d32f2f;
 }
 
 @keyframes fadeIn {

@@ -1,5 +1,10 @@
 <template>
   <div class="time-range-chart">
+    <h1>DB Overview</h1>
+    <!-- 선택된 범위의 차트 -->
+    <div class="chart-container">
+      <Line :data="chartData" :options="chartOptions" />
+    </div>
     <!-- 범위 선택 버튼들 -->
     <div class="button-group">
       <button
@@ -10,11 +15,6 @@
       >
         {{ range.label }}
       </button>
-    </div>
-
-    <!-- 선택된 범위의 차트 -->
-    <div class="chart-container">
-      <Line :data="chartData" :options="chartOptions" />
     </div>
   </div>
 </template>
@@ -51,6 +51,39 @@ export default {
           x: {
             beginAtZero: true,
           },
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: "#f0f0f0",
+            },
+            ticks: {
+              stepSize: 20,
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: "top",
+            labels: {
+              color: "#333",
+              font: {
+                size: 14,
+              },
+            },
+          },
+          tooltip: {
+            backgroundColor: "#333",
+            titleFont: {
+              size: 14,
+              weight: 'bold',
+            },
+            bodyFont: {
+              size: 12,
+            },
+            bodySpacing: 5,
+            padding: 10,
+          },
         },
       },
     };
@@ -64,8 +97,13 @@ export default {
           {
             label: `${this.getLabelByRange(this.activeRange)} 검사 갯수`,
             data: data.values,
-            backgroundColor: "rgba(66, 165, 245, 0.5)",
+            backgroundColor: "rgba(66, 165, 245, 0.3)",
             borderColor: "#42A5F5",
+            pointBackgroundColor: "#ffffff",
+            pointBorderColor: "#42A5F5",
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4,
             fill: true,
           },
         ],
@@ -127,26 +165,36 @@ export default {
 
 <style scoped>
 .time-range-chart {
-  max-width: 800px; /* 가로 크기를 더 크게 조정 */
-  height: 400px;
-  width: 100%;    
-  margin: 5% auto;
+  max-width: 100%; /* 가로 크기를 더 적당하게 조정 */
+  height: 450px;
+  width: 90%;    
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 15px;
+  /* background-color: #ffffff; */
+  /* box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); */
 }
 
 .button-group {
   display: flex;
   justify-content: center;
+  margin-top: 2%;
   gap: 10px;
-  margin-bottom: 20px;
 }
 
 button {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 12px 20px;
+  font-size: 15px;
   cursor: pointer;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-3px);
 }
 
 button.active {
@@ -156,7 +204,8 @@ button.active {
 }
 
 .chart-container {
-  padding: 10px;
-  height: 100%; /* 차트 컨테이너의 높이를 부모 요소에 맞춤 */
+  /* padding: 30px; */
+  height: 350px; 
+  width: 100%;
 }
 </style>
