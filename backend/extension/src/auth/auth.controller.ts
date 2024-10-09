@@ -75,10 +75,8 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    this.logger.log('hello');
     try {
       const refreshToken = req.cookies['refresh_token'];
-      this.logger.log(`refresh token ${refreshToken}`);
 
       if (!refreshToken) {
         throw new BadRequestException('No refresh token provided');
