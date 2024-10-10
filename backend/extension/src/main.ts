@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.enableCors({
     credentials: true,
-    origin: "https://kisia-project.vercel.app/",
+    origin: "http://43.203.239.57:3000",
   });
 
   app.use(cookieParser());
