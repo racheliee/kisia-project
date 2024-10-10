@@ -75,7 +75,7 @@ export default {
             headers: { "Content-Type": "application/json" },
           }
         );
-        console.log("axios")
+        console.log("axios", response); // 응답 데이터 확인
 
         if (
           response.status === 200 &&
