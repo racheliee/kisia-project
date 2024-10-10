@@ -24,6 +24,7 @@
             v-model="password"
             required
             placeholder="Enter your password"
+            autocomplete="current-password"
           />
         </div>
         <button type="submit" class="login-button">Login</button>
@@ -55,50 +56,33 @@ export default {
   },
   methods: {
     async handleLogin() {
-      // Check for test account credentials
-      // const testLoginId = "admin";
-      // const testPassword = "admin";
-
-      // // Hardcoded login for test account
-      // if (this.loginId === testLoginId && this.password === testPassword) {
-      //   localStorage.setItem("access_token", "testAccessToken");
-      //   localStorage.setItem("refresh_token", "testRefreshToken");
-
-      //   alert("Test login successful!");
-      //   this.$router.push({ name: "DashboardPage" });
-      //   return;
-      // }
-
-      // Regular API call for real login credentials
       try {
-        const response = await axios.post("http://43.203.239.57:8000/auth/login", {
-          username: this.loginId,
-          password: this.password,
-        });
+        const response = await axios.post(
+          "/auth/login",
+          {
+            username: this.loginId,
+            password: this.password,
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
 
         if (response.status === 200) {
           const { access_token, refresh_token } = response.data.data;
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
-
-          alert(response.data.message || "Login successful!");
           this.$router.push({ name: "DashboardPage" });
         }
       } catch (error) {
         if (error.response) {
-          // Display specific error messages from the API response
           const { statusCode, message } = error.response.data;
-          if (statusCode === 401) {
-            if (message === "loginId is incorrect") {
-              this.errorMessage = "Login ID is incorrect";
-            } else if (message === "password is incorrect") {
-              this.errorMessage = "Password is incorrect";
-            } else {
-              this.errorMessage = "Unauthorized access.";
-            }
-          } else {
-            this.errorMessage = message || "An error occurred during login.";
-          }
+          this.errorMessage =
+            statusCode === 401
+              ? message === "loginId is incorrect"
+                ? "Login ID is incorrect"
+                : "Password is incorrect"
+              : "Unauthorized access.";
         } else {
           this.errorMessage = "An error occurred during login.";
         }
@@ -107,7 +91,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .login-page {
