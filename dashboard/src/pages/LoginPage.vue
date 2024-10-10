@@ -58,7 +58,7 @@ export default {
     async handleLogin() {
       try {
         const response = await axios.post(
-          "/auth/login",
+          "http://43.203.239.57:8000/auth/login",
           {
             username: this.loginId,
             password: this.password,
@@ -76,13 +76,15 @@ export default {
         }
       } catch (error) {
         if (error.response) {
-          const { statusCode, message } = error.response.data;
-          this.errorMessage =
-            statusCode === 401
-              ? message === "loginId is incorrect"
+          const { message, statusCode } = error.response.data;
+          if (statusCode === 401) {
+            this.errorMessage =
+              message === "loginId is incorrect"
                 ? "Login ID is incorrect"
-                : "Password is incorrect"
-              : "Unauthorized access.";
+                : "Password is incorrect";
+          } else {
+            this.errorMessage = message || "An error occurred during login.";
+          }
         } else {
           this.errorMessage = "An error occurred during login.";
         }
