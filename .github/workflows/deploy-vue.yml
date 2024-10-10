@@ -47,6 +47,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
             docker stop dashboard || true
             docker rm dashboard || true
-            docker run -d --log-driver=syslog -p 8081:8081 --network app-network --env-file .env --name dashboard ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
+            docker run -d --log-driver=syslog -p 3000:3000 --network app-network --env-file .env --name dashboard ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
             echo "Dashboard docker image has been deployed successfully."
             docker image prune -a -f
