@@ -75,6 +75,7 @@ export default {
             headers: { "Content-Type": "application/json" },
           }
         );
+        console.log("axios")
 
         if (
           response.status === 200 &&
@@ -84,15 +85,21 @@ export default {
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
           this.$router.push({ name: "DashboardPage" });
+          console.log(1);
+          
         }
       } catch (error) {
         if (error.response) {
           const { message, statusCode } = error.response.data;
+          console.log(2);
+
           if (statusCode === 401) {
             this.errorMessage =
               message === "loginId is incorrect"
                 ? "Login ID is incorrect"
                 : "Password is incorrect";
+                console.log(3);
+
           } else {
             this.errorMessage = message || "An error occurred during login.";
           }
