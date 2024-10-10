@@ -77,10 +77,8 @@ export default {
         );
         console.log("axios 응답:", response); // 전체 응답 로그 출력
 
-        if (
-          response.status === 201 &&
-          response.data.data.message === "User logged in successfully"
-        ) {
+        // status 코드가 200 또는 201일 때만 토큰을 저장
+        if ([200, 201].includes(response.status)) {
           const { access_token, refresh_token } = response.data.data.data; // 중첩된 data에 접근
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
