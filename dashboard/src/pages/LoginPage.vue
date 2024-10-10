@@ -79,7 +79,7 @@ export default {
 
         // status 코드가 200 또는 201일 때만 토큰을 저장
         if ([200, 201].includes(response.status)) {
-          const { access_token, refresh_token } = response.data.data.data; // 중첩된 data에 접근
+          const { access_token, refresh_token } = response.data.data; // 중첩된 data 하나 제거
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
           this.$router.push({ name: "DashboardPage" });
