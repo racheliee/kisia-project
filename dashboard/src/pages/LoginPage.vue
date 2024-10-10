@@ -75,10 +75,10 @@ export default {
             headers: { "Content-Type": "application/json" },
           }
         );
-        console.log("axios", response); // 응답 데이터 확인
+        console.log("axios 응답:", response); // 전체 응답 로그 출력
 
         if (
-          response.status === 201 && // 응답 상태 코드가 201인지 확인
+          response.status === 201 &&
           response.data.data.message === "User logged in successfully"
         ) {
           const { access_token, refresh_token } = response.data.data.data; // 중첩된 data에 접근
@@ -86,19 +86,18 @@ export default {
           localStorage.setItem("refresh_token", refresh_token);
           this.$router.push({ name: "DashboardPage" });
           console.log("로그인 성공");
+        } else {
+          console.log("조건에 맞지 않는 응답:", response);
         }
-        
       } catch (error) {
+        console.log("로그인 오류:", error); // 오류 로그 출력
         if (error.response) {
           const { message, statusCode } = error.response.data;
-          console.log(2);
-
           if (statusCode === 401) {
             this.errorMessage =
               message === "loginId is incorrect"
                 ? "Login ID is incorrect"
                 : "Password is incorrect";
-            console.log(3);
           } else {
             this.errorMessage = message || "An error occurred during login.";
           }
