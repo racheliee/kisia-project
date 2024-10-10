@@ -71,7 +71,7 @@ export default {
 
       // Regular API call for real login credentials
       try {
-        const response = await axios.post("http://127.0.0.1:5000/auth/login", {
+        const response = await axios.post("/auth/login", {
           username: this.loginId,
           password: this.password,
         });
