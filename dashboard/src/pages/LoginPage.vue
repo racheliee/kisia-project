@@ -76,7 +76,10 @@ export default {
           }
         );
 
-        if (response.status === 200) {
+        if (
+          response.status === 200 &&
+          response.data.message === "Successfully signed in"
+        ) {
           const { access_token, refresh_token } = response.data.data;
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
