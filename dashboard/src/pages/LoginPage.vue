@@ -54,24 +54,24 @@ export default {
     };
   },
   methods: {
-    // async handleLogin() {
-    //   // Check for test account credentials
-    //   const testLoginId = "admin";
-    //   const testPassword = "admin";
+    async handleLogin() {
+      // Check for test account credentials
+      // const testLoginId = "admin";
+      // const testPassword = "admin";
 
-    //   // Hardcoded login for test account
-    //   if (this.loginId === testLoginId && this.password === testPassword) {
-    //     localStorage.setItem("access_token", "testAccessToken");
-    //     localStorage.setItem("refresh_token", "testRefreshToken");
+      // // Hardcoded login for test account
+      // if (this.loginId === testLoginId && this.password === testPassword) {
+      //   localStorage.setItem("access_token", "testAccessToken");
+      //   localStorage.setItem("refresh_token", "testRefreshToken");
 
-    //     alert("Test login successful!");
-    //     this.$router.push({ name: "DashboardPage" });
-    //     return;
-    //   }
+      //   alert("Test login successful!");
+      //   this.$router.push({ name: "DashboardPage" });
+      //   return;
+      // }
 
       // Regular API call for real login credentials
       try {
-        const response = await axios.post("/auth/login", {
+        const response = await axios.post("http://127.0.0.1:5000/auth/login", {
           username: this.loginId,
           password: this.password,
         });
