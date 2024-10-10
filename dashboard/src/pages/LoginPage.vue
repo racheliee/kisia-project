@@ -54,30 +54,29 @@ export default {
     };
   },
   methods: {
-    // async handleLogin() {
-    //   // Check for test account credentials
-    //   const testLoginId = "admin";
-    //   const testPassword = "admin";
+    async handleLogin() {
+      // Check for test account credentials
+      const testLoginId = "admin";
+      const testPassword = "admin";
 
-    //   // Hardcoded login for test account
-    //   if (this.loginId === testLoginId && this.password === testPassword) {
-    //     // Store mock tokens for the test session
-    //     localStorage.setItem("access_token", "testAccessToken");
-    //     localStorage.setItem("refresh_token", "testRefreshToken");
+      // Hardcoded login for test account
+      if (this.loginId === testLoginId && this.password === testPassword) {
+        localStorage.setItem("access_token", "testAccessToken");
+        localStorage.setItem("refresh_token", "testRefreshToken");
 
-    //     alert("Test login successful!");
-    //     this.$router.push({ name: "DashboardPage" });
-    //     return;
-    //   }
+        alert("Test login successful!");
+        this.$router.push({ name: "DashboardPage" });
+        return;
+      }
 
       // Regular API call for real login credentials
       try {
         const response = await axios.post("/auth/login", {
-          loginId: this.loginId,
+          username: this.loginId,
           password: this.password,
         });
 
-        if (response.data.statusCode === 200) {
+        if (response.status === 200) {
           const { access_token, refresh_token } = response.data.data;
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
@@ -88,7 +87,18 @@ export default {
       } catch (error) {
         if (error.response) {
           // Display specific error messages from the API response
-          this.errorMessage = error.response.data.message || "An error occurred during login.";
+          const { statusCode, message } = error.response.data;
+          if (statusCode === 401) {
+            if (message === "loginId is incorrect") {
+              this.errorMessage = "Login ID is incorrect";
+            } else if (message === "password is incorrect") {
+              this.errorMessage = "Password is incorrect";
+            } else {
+              this.errorMessage = "Unauthorized access.";
+            }
+          } else {
+            this.errorMessage = message || "An error occurred during login.";
+          }
         } else {
           this.errorMessage = "An error occurred during login.";
         }
