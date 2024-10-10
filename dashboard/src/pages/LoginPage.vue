@@ -56,15 +56,23 @@ export default {
   },
   methods: {
     async handleLogin() {
+      // Admin login bypass
+      if (this.loginId === "admin" && this.password === "admin") {
+        localStorage.setItem("access_token", "dummy_admin_access_token");
+        localStorage.setItem("refresh_token", "dummy_admin_refresh_token");
+        this.$router.push({ name: "DashboardPage" });
+        return;
+      }
+
       try {
         const response = await axios.post(
-          "https://43.203.239.57:8000/auth/login",
+          "http://43.203.239.57:8000/auth/login",
           {
             username: this.loginId,
             password: this.password,
           },
           {
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
           }
         );
 
