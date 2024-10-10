@@ -1,0 +1,52 @@
+name: Docker Vue Image CI/CD
+
+on:
+  push:
+    paths:
+      - dashboard/** # Only run workflow when changes are made to the dashboard directory
+      - .github/workflows/deploy-vue.yml
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: dashboard
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: docker build --platform linux/amd64 -t ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
+
+  deploy:
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            echo "Pulling dashboard image from Docker..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
+            docker stop dashboard || true
+            docker rm dashboard || true
+            docker run -d --log-driver=syslog -p 8081:8081 --network app-network --env-file .env --name dashboard ${{ secrets.DOCKER_USERNAME }}/kisia-project-backend:dashboard
+            echo "Dashboard docker image has been deployed successfully."
+            docker image prune -a -f
