@@ -64,7 +64,7 @@ export default {
             password: this.password,
           },
           {
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json" }
           }
         );
 
