@@ -58,7 +58,7 @@ export default {
     async handleLogin() {
       try {
         const response = await axios.post(
-          "https://43.203.239.57:8000/auth/login",
+          "http://43.203.239.57:8000/auth/login",
           {
             username: this.loginId,
             password: this.password,
