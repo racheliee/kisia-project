@@ -127,7 +127,7 @@ export default {
 
     async fetchChartData() {
       try {
-        const response = await axios.get("/api/monthly-requests");
+        const response = await axios.get("http://43.203.239.57:8000/api/monthly-requests");
         const data = response.data;
 
         // API 데이터로 chartData 설정

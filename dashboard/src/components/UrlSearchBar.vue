@@ -122,7 +122,7 @@ export default {
 
       this.errorMessage = "";
       try {
-        const response = await axios.post("/admin/url-search", { url: this.query });
+        const response = await axios.post("http://43.203.239.57:8000/admin/url-search", { url: this.query });
         
         if (response.data.found) {
           this.urlData = [

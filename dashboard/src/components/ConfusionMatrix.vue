@@ -75,7 +75,7 @@ export default {
   methods: {
     async fetchConfusionMatrix(model) {
       try {
-        const response = await axios.get(`/admin/model/confusion-matrix?model=${model}`);
+        const response = await axios.get(`http://43.203.239.57:8000/admin/model/confusion-matrix?model=${model}`);
         const data = response.data.find((item) => item.model === model);
 
         if (data) {

@@ -82,7 +82,7 @@ export default {
       }
 
       try {
-        const response = await axios.post("/auth/signup", {
+        const response = await axios.post("http://43.203.239.57:8000/auth/signup", {
           email: this.email,
           username: this.username,
           password: this.password,

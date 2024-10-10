@@ -96,9 +96,9 @@ export default {
     async fetchData() {
       try {
         const [accessCountRes, fnRes, fpRes] = await Promise.all([
-          axios.get("/admin/top-accessed-urls"),
-          axios.get("/admin/top-false-negatives"),
-          axios.get("/admin/top-false-postives"),
+          axios.get("http://43.203.239.57:8000/admin/top-accessed-urls"),
+          axios.get("http://43.203.239.57:8000/admin/top-false-negatives"),
+          axios.get("http://43.203.239.57:8000/admin/top-false-postives"),
         ]);
 
         this.tabs[0].data = accessCountRes.data.map(item => ({ label: item.url, value: item.accessCount }));

@@ -35,13 +35,13 @@ export default {
 
       try {
         if (this.title === "총 검사 요청") {
-          const response = await axios.get("/admin/total-requests?interval=month");
+          const response = await axios.get("http://43.203.239.57:8000/admin/total-requests?interval=month");
           this.value = response.data.totalRequests;
         } else if (this.title === "총 AI 검사 요청") {
-          const response = await axios.get("/admin/ai-requests?interval=month");
+          const response = await axios.get("http://43.203.239.57:8000/admin/ai-requests?interval=month");
           this.value = response.data.aiRequests;
         } else if (this.title === "총 URL 갯수" || this.title === "DB Size") {
-          const response = await axios.get("/admin/db-overview");
+          const response = await axios.get("http://43.203.239.57:8000/admin/db-overview");
           this.value = this.title === "총 URL 갯수" ? response.data.totalUrls : response.data.dbSize;
         }
       } catch (error) {

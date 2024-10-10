@@ -58,9 +58,9 @@ export default {
     async fetchUserStats() {
       try {
         const [totalUsersResponse, newUsersResponse, activeUsersResponse] = await Promise.all([
-          axios.get("/admin/users/total-users"),
-          axios.get("/admin/users/new-users"),
-          axios.get("/admin/users/active-users"),
+          axios.get("http://43.203.239.57:8000/admin/users/total-users"),
+          axios.get("http://43.203.239.57:8000/admin/users/new-users"),
+          axios.get("http://43.203.239.57:8000/admin/users/active-users"),
         ]);
 
         this.totalUsers = totalUsersResponse.data.totalUsers || 1000;

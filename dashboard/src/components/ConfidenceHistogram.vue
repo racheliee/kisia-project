@@ -35,7 +35,7 @@ export default {
     // API 호출하여 confidence score 구간별 hit rate 가져오기
     async fetchConfidenceData() {
       try {
-        const response = await axios.get("/admin/model/confidence-hit-rate");
+        const response = await axios.get("http://43.203.239.57:8000/admin/model/confidence-hit-rate");
         this.confidenceData = response.data.data.map(item => ({
           range: item.confidenceRange,
           count: item.count,
