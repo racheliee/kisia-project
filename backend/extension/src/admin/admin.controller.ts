@@ -106,16 +106,58 @@ export class AdminController {
   }
 
   @Get('url-search')
-  async searchUrl(@Body() url: UrlDto){
+  async searchUrl(@Body() url: UrlDto) {
     try {
-        return {
-            statusCode: 200,
-            message: 'Successfully retrieved url information',
-            data: await this.adminService.searchUrl(url.url),
-        }
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved url information',
+        data: await this.adminService.searchUrl(url.url),
+      };
     } catch (error) {
-        this.logger.error(error);
-        throw new BadRequestException('Error retrieving url information');
+      this.logger.error(error);
+      throw new BadRequestException('Error retrieving url information');
+    }
+  }
+
+  @Get('total-users')
+  async getTotalUsers() {
+    try {
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved total users',
+        data: await this.adminService.getTotalUsers(),
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException('Error retrieving total users');
+    }
+  }
+
+  @Get('active-users')
+  async getActiveUsers() {
+    try {
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved active users',
+        data: await this.adminService.getActiveUsers(),
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException('Error retrieving active users');
+    }
+  }
+
+  @Get('new-users')
+  async getNewUsers() {
+    try {
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved new users',
+        data: await this.adminService.getNewUsers(),
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException('Error retrieving new users');
     }
   }
 }

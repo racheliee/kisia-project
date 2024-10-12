@@ -148,24 +148,48 @@ export class AdminService {
 
   async searchUrl(url: string) {
     const res = await this.prismaService.url.findFirst({
-        where:{
-            url: url,
-        }
+      where: {
+        url: url,
+      },
     });
 
-    if(!res){
-        throw new Error('URL not found');
+    if (!res) {
+      throw new Error('URL not found');
     }
 
     return {
-        url: url,
-        isMalicious: res.isMalicious,
-        accessCount: res.accessCount,
-        falseNeg: res.falseNeg,
-        falsePos: res.falsePos,
-        confidenceScore: res.confidenceScore,
-        createdAt: res.createdAt,
-        updatedAt: res.updatedAt,
+      url: url,
+      isMalicious: res.isMalicious,
+      accessCount: res.accessCount,
+      falseNeg: res.falseNeg,
+      falsePos: res.falsePos,
+      confidenceScore: res.confidenceScore,
+      createdAt: res.createdAt,
+      updatedAt: res.updatedAt,
     };
+  }
+
+  async getTotalUsers() {
+    return this.prismaService.user.count();
+  }
+
+  async getActiveUsers() {
+    return this.prismaService.user.count({
+      where: {
+        lastLogin: {
+          gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+  }
+
+  async getNewUsers() {
+    return this.prismaService.user.count({
+      where: {
+        createdAt: {
+          gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+    });
   }
 }
