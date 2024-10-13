@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AdminModule } from './admin.module';
 import { AdminService } from './admin.service';
-import { TotalRequestsQueryDTO } from './dto/totalrequest.dto';
+import { RequestCountQueryDTO } from './dto/requestCount.dto';
 import { UrlDto } from 'src/url/dto/url.dto';
 
 @Controller('admin')
@@ -36,8 +36,9 @@ export class AdminController {
   }
 
   @Get('total-requests')
-  async getTotalRequests(@Query() query: TotalRequestsQueryDTO) {
+  async getTotalRequests(@Query() query: RequestCountQueryDTO) {
     try {
+      this.logger.log(`Getting total requests`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved total requests',
@@ -49,9 +50,27 @@ export class AdminController {
     }
   }
 
+  @Get('ai-requests')
+  async getAIRequests(@Query() query: RequestCountQueryDTO) {
+    try {
+      this.logger.log(`Getting AI requests`);
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved AI requests',
+        data: await this.adminService.getAIRequests(query.interval, {
+          detectedBy: 'AI_MODEL',
+        }),
+      };
+    } catch (error) {
+      this.logger.error(error);
+      throw new BadRequestException('Error retrieving AI requests');
+    }
+  }
+
   @Get('top-urls')
   async getTop5AccessedUrls() {
     try {
+      this.logger.log(`Getting top 5 accessed urls`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved top 5 accessed urls',
@@ -66,6 +85,7 @@ export class AdminController {
   @Get('top-malicious')
   async getTop5MaliciousUrls() {
     try {
+      this.logger.log(`Getting top 5 malicious urls`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved top 5 malicious urls',
@@ -94,6 +114,7 @@ export class AdminController {
   @Get('top-false-positive')
   async getTop5FalsePos() {
     try {
+      this.logger.log(`Getting top 5 false positive urls`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved top 5 false positive urls',
@@ -108,6 +129,7 @@ export class AdminController {
   @Get('url-search')
   async searchUrl(@Body() url: UrlDto) {
     try {
+      this.logger.log(`Searching url: ${url.url}`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved url information',
@@ -122,6 +144,7 @@ export class AdminController {
   @Get('total-users')
   async getTotalUsers() {
     try {
+      this.logger.log(`Getting total users`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved total users',
@@ -136,6 +159,7 @@ export class AdminController {
   @Get('active-users')
   async getActiveUsers() {
     try {
+      this.logger.log(`Getting active users`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved active users',
@@ -150,6 +174,7 @@ export class AdminController {
   @Get('new-users')
   async getNewUsers() {
     try {
+      this.logger.log(`Getting new users`);
       return {
         statusCode: 200,
         message: 'Successfully retrieved new users',

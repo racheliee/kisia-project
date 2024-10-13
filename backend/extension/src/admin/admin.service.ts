@@ -1,13 +1,12 @@
 import { Injectable, Logger, Query } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TotalRequestsQueryDTO } from './dto/totalrequest.dto';
+import { RequestCountQueryDTO } from './dto/requestCount.dto';
 
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(AdminService.name);
   constructor(private readonly prismaService: PrismaService) {}
 
-  // database overview
   async getDbOverview() {
     this.logger.log('Getting database overview');
 
@@ -25,35 +24,159 @@ export class AdminService {
     };
   }
 
-  // todo: total requests
-  async getTotalRequests(interval: string) {
+  // helper function to get total requests & ai requests
+  getStartOfWeek(date: Date) {
+    const day = date.getDay();
+    const startOfWeek = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() - day + (day === 0 ? -6 : 1),
+    );
+    startOfWeek.setHours(0, 0, 0, 0);
+    return startOfWeek;
+  }
+
+  // helper function to get total requests & ai requests
+  getWeekLabel(start: Date, end: Date) {
+    const startDate = `${start.getMonth() + 1}/${start.getDate()}`;
+    const endDate = `${end.getMonth() + 1}/${end.getDate()}`;
+    return `${startDate} - ${endDate}`;
+  }
+
+  async getRequests(interval: string, where?: Record<string, any>) {
+    const now = new Date();
+
     switch (interval) {
-      case 'day':
-        return this.prismaService.history.groupBy({
-          by: ['createdAt'],
-          orderBy: {
-            createdAt: 'asc',
-          },
+      case 'hour':
+        const hourResults = await this.prismaService.history.findMany({
           where: {
+            ...where,
             createdAt: {
-              gte: new Date(new Date().getTime() - 24 * 60 * 60 * 1000), // 24 hours ago
+              gte: new Date(now.getTime() - 24 * 60 * 60 * 1000), // ms 이용, 최근 24시간
             },
           },
-          _count: {
-            id: true,
-          },
-        });
-      case 'week':
-        return this.prismaService.history.groupBy({
-          by: ['createdAt'],
           orderBy: {
             createdAt: 'asc',
           },
-          _count: {
-            id: true,
+        });
+
+        // Group by hour using JS
+        const hourlyGroups = hourResults.reduce(
+          (acc, record) => {
+            // acc is the accumulator to count the number of requests per hour, record is each record in the history table
+            const hour = record.createdAt.getHours();
+            if (!acc[hour]) {
+              acc[hour] = 0;
+            }
+            acc[hour]++;
+            return acc;
+          },
+          {} as Record<number, number>, // only keep the hour and count
+        );
+
+        return Object.entries(hourlyGroups).map(([hour, count]) => ({
+          hour: `${hour}:00`,
+          count,
+        }));
+      case 'day':
+        const dayResults = await this.prismaService.history.findMany({
+          where: {
+            ...where,
+            createdAt: {
+              gte: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // recent 7 days
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
           },
         });
+
+        const dailyGroups = {};
+        dayResults.forEach((record) => {
+          const recordDate = new Date(record.createdAt);
+          const dayLabel = `${recordDate.getMonth() + 1}/${recordDate.getDate()}`;
+
+          if (!dailyGroups[dayLabel]) {
+            dailyGroups[dayLabel] = 0;
+          }
+          dailyGroups[dayLabel]++;
+        });
+
+        return Object.entries(dailyGroups).map(([day, count]) => ({
+          day: `${day}`,
+          count,
+        }));
+
+      case 'week':
+        const weekResults = await this.prismaService.history.findMany({
+          where: {
+            ...where,
+            createdAt: {
+              gte: new Date(now.getTime() - 8 * 7 * 24 * 60 * 60 * 1000), // recent 8 weeks
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        });
+
+        const weeklyGroups = {};
+        weekResults.forEach((record) => {
+          const recordDate = new Date(record.createdAt);
+          const startOfWeek = this.getStartOfWeek(recordDate);
+          const endOfWeek = new Date(
+            startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000,
+          );
+          const label = this.getWeekLabel(startOfWeek, endOfWeek);
+
+          if (!weeklyGroups[label]) {
+            weeklyGroups[label] = 0;
+          }
+          weeklyGroups[label]++;
+        });
+
+        return Object.entries(weeklyGroups).map(([week, count]) => ({
+          week: `${week}`,
+          count,
+        }));
+
+      case 'month':
+        const monthlyResults = await this.prismaService.history.findMany({
+          where: {
+            ...where,
+            createdAt: {
+              gte: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // recent 30 days
+            },
+          },
+          orderBy: {
+            createdAt: 'asc',
+          },
+        });
+
+        const monthlyGroups = {};
+        monthlyResults.forEach((record) => {
+          const recordDate = new Date(record.createdAt);
+          const monthLabel = `${recordDate.getMonth() + 1}`;
+
+          if (!monthlyGroups[monthLabel]) {
+            monthlyGroups[monthLabel] = 0;
+          }
+          monthlyGroups[monthLabel]++;
+        });
+
+        return Object.entries(monthlyGroups).map(([month, count]) => ({
+          month: `${month}`,
+          count,
+        }));
     }
+  }
+
+  async getTotalRequests(interval: string) {
+    return this.getRequests(interval);
+  }
+
+  async getAIRequests(interval: string, where?: Record<string, any>) {
+    return this.getRequests(interval, where);
   }
 
   async getTop5AccessedUrls() {
