@@ -27,22 +27,26 @@ export default {
   methods: {
     async fetchData() {
       const defaultData = {
-        "총 검사 요청": 500,
-        "총 AI 검사 요청": 120,
-        "총 URL 갯수": 1000,
-        "DB Size": "200MB",
+        "총 URL 갯수": 1,
+        "악성 URL 갯수": 0,
+        "총 사용자수": 1,
+        "DB Size": "9049 KB",
       };
 
       try {
-        if (this.title === "총 검사 요청") {
-          const response = await axios.get("http://43.203.239.57:8000/admin/total-requests?interval=month");
-          this.value = response.data.totalRequests;
-        } else if (this.title === "총 AI 검사 요청") {
-          const response = await axios.get("http://43.203.239.57:8000/admin/ai-requests?interval=month");
-          this.value = response.data.aiRequests;
-        } else if (this.title === "총 URL 갯수" || this.title === "DB Size") {
+        if (this.title === "총 URL 갯수" || this.title === "악성 URL 갯수" || this.title === "DB Size") {
           const response = await axios.get("http://43.203.239.57:8000/admin/db-overview");
-          this.value = this.title === "총 URL 갯수" ? response.data.totalUrls : response.data.dbSize;
+          const data = response.data.data;
+          if (this.title === "총 URL 갯수") {
+            this.value = data.totalUrls;
+          } else if (this.title === "악성 URL 갯수") {
+            this.value = data.numMaliciousUrls;
+          } else if (this.title === "DB Size") {
+            this.value = data.size;
+          }
+        } else if (this.title === "총 사용자수") {
+          const response = await axios.get("http://43.203.239.57:8000/admin/users/total-users");
+          this.value = response.data.data;
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);

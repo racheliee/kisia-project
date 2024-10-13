@@ -91,11 +91,13 @@ export default {
         if (response.data.statusCode === 201) {
           this.successMessage = response.data.message;
           this.errorMessage = '';
-          this.$router.push({ path: "/" }); // Redirect to home page upon successful signup
+          setTimeout(() => {
+            this.$router.push({ path: "/" }); // Redirect to home page upon successful signup
+          }, 1000);
         }
       } catch (error) {
         this.successMessage = '';
-        if (error.response) {
+        if (error.response && error.response.status === 400) {
           this.errorMessage = error.response.data.message;
         } else {
           this.errorMessage = "An error occurred during signup.";

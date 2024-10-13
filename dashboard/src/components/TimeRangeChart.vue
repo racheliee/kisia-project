@@ -1,6 +1,6 @@
 <template>
   <div class="time-range-chart">
-    <h1>DB Overview</h1>
+    <h1>Total requests</h1>
     <!-- 선택된 범위의 차트 -->
     <div class="chart-container">
       <Line :data="chartData" :options="chartOptions" />

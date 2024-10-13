@@ -6,9 +6,9 @@
   <div class="dashboard">
     <!-- 상단 요약 카드 섹션 -->
     <div class="summary-cards">
-      <SummaryCard title="총 검사 요청" />
-      <SummaryCard title="총 AI 검사 요청" />
       <SummaryCard title="총 URL 갯수" />
+      <SummaryCard title="악성 URL 갯수" />
+      <SummaryCard title="총 사용자수" />
       <SummaryCard title="DB Size" />
     </div>
 
@@ -19,7 +19,7 @@
       </div>
       
       <div class="chart-card">
-        <BarChart title="All Requests" />
+        <BarChart title="All AI Requests" />
       </div>
     </div>
 
