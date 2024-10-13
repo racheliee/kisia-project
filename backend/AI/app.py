@@ -84,7 +84,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = request.cookies.get('access_token')
-        app_logger.info(f"Token: {token}")
+        # app_logger.info(f"Token: {token}")
         if not token:
             return jsonify({
                 "statusCode": 401,
@@ -108,6 +108,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def decode_jwt_token(token):
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+    
+    
 # functions to run each ai model =================================
 # extract js files and save them to generated folder
 def extract_js_files(url):
@@ -237,10 +246,17 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
         "updatedAt" = NOW();
     """
     
+    # save to history database
+    history_sql_query = '''
+    INSERT INTO "History" ("userId", "url", "isMalicious", "detectedBy", "confidenceScore", "createdAt")
+    VALUES (%s, %s, %s, 'AI_MODEL', %s, NOW());
+    '''
+    
     cur = db_conn.cursor()
 
     cur.execute(sql_url_query, (url, final_res, url_aggregated, static_aggregated, dynamic_aggregated, confidence_score))
     cur.execute(sql_hitrate_query, (get_confidence_range(confidence_score),))
+    cur.execute(history_sql_query, (request.user['id'], url, final_res, confidence_score))
     db_conn.commit()
     cur.close()
 
