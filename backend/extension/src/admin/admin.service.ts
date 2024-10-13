@@ -1,6 +1,7 @@
 import { Injectable, Logger, Query } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RequestCountQueryDTO } from './dto/requestCount.dto';
+import { RequestCountQueryDTO } from './dto/requestCountQuery.dto';
+import { ModelType } from '@prisma/client';
 
 @Injectable()
 export class AdminService {
@@ -314,5 +315,57 @@ export class AdminService {
         },
       },
     });
+  }
+
+  async getConfusionMatrix(model?: string) {
+    this.logger.log(`confusion matrix for model: ${model}`);
+    if (model) {
+      const databaseResult =
+        await this.prismaService.confusionMatrix.findUnique({
+          where: {
+            modelType: model as ModelType,
+          }
+        });
+
+      if (databaseResult) {
+        this.logger.log(`Found confusion matrix for model: ${model}`);
+        return {
+          modelType: databaseResult.modelType,
+          truePositive: databaseResult.truePos,
+          trueNegative: databaseResult.trueNeg,
+          falsePositive: databaseResult.falsePos,
+          falseNegative: databaseResult.falseNeg,
+        };
+      }
+    }else{
+        const databaseResult = await this.prismaService.confusionMatrix.findMany();
+
+        if (databaseResult) {
+          this.logger.log(`Found confusion matrix for all models`);
+          return databaseResult.map((result) => {
+            return {
+              modelType: result.modelType,
+              truePositive: result.truePos,
+              trueNegative: result.trueNeg,
+              falsePositive: result.falsePos,
+              falseNegative: result.falseNeg,
+            };
+          });
+        }
+    }
+  }
+
+  async getConfidenceHitRate() {
+    const databaseResult = await this.prismaService.confidenceHitRate.findMany();
+
+    if (databaseResult) {
+      this.logger.log(`Found confidence hit rate for all models`);
+      return databaseResult.map((result) => {
+        return {
+          confidenceRange: result.confidenceRange,
+          count: result.count,
+        };
+      });
+    }
   }
 }

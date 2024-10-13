@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { AdminModule } from './admin.module';
 import { AdminService } from './admin.service';
-import { RequestCountQueryDTO } from './dto/requestCount.dto';
+import { RequestCountQueryDTO } from './dto/requestCountQuery.dto';
 import { UrlDto } from 'src/url/dto/url.dto';
+import { modelQueryDTO } from './dto/modelQuery.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -183,6 +184,46 @@ export class AdminController {
     } catch (error) {
       this.logger.error(error);
       throw new BadRequestException('Error retrieving new users');
+    }
+  }
+
+  @Get('confusion-matrix')
+  async getConfusionMatrix(@Query() query: modelQueryDTO) {
+    try {
+      this.logger.log(`Getting confusion matrix`);
+
+      if (query.model) {
+        return {
+          statusCode: 200,
+          message: 'Successfully retrieved confusion matrix',
+          data: await this.adminService.getConfusionMatrix(query.model),
+        };
+      } else {
+        return {
+          statusCode: 200,
+          message: 'Successfully retrieved confusion matrix',
+          data: await this.adminService.getConfusionMatrix(),
+        };
+      }
+    } catch (error) {
+      this.logger.error(`Error getting confusion matrix`, error);
+      throw new BadRequestException('Error getting confusion matrix');
+    }
+  }
+
+  @Get('confidence-hit-rate')
+  async getConfidenceHitRate() {
+    try {
+      this.logger.log(`Getting confidence hit rate`);
+
+      return {
+        statusCode: 200,
+        message: 'Successfully retrieved confidence hit rate',
+        data: await this.adminService.getConfidenceHitRate(),
+      };
+    } catch (error) {
+      this.logger.error(`Error getting confidence hit rate`, error);
+      throw new BadRequestException('Error getting confidence hit rate');
     }
   }
 }

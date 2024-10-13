@@ -90,7 +90,7 @@ def login_required(f):
                 "statusCode": 401,
                 "message": "Unauthorized"
             }), 401
-        
+
         try:
             payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
             request.user = payload
@@ -104,9 +104,10 @@ def login_required(f):
                 "statusCode": 401,
                 "message": "Unauthorized. Invalid token"
             }), 401
-        
+
         return f(*args, **kwargs)
     return decorated_function
+
 
 def decode_jwt_token(token):
     try:
@@ -115,8 +116,8 @@ def decode_jwt_token(token):
         return None
     except jwt.InvalidTokenError:
         return None
-    
-    
+
+
 # functions to run each ai model =================================
 # extract js files and save them to generated folder
 def extract_js_files(url):
@@ -144,13 +145,14 @@ def run_static_model():
             entire_js_script.append(f.read())
 
     preds = static_model.predict(entire_js_script)
-    
+
     return [p for p in preds if p is not None]
 
 
 # run dynamic model
 def run_dynamic_model():
-    preds = dynamic_model.predict(js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
+    preds = dynamic_model.predict(
+        js_path, base_folder, f"{base_folder}/{js_storage_path}", jalangi_path)
     return [p for p in preds if p is not None]
 
 
@@ -171,7 +173,7 @@ def combine_results(urlres, sres, dres):
     # combine url and s_d_res
     # combined_pred = 0.1 * (urlres[0]['confidence'] if urlres[0]['prediction']
     #                        == 'malicious' else 1 - urlres[0]['confidence']) + 0.9 * max(s_d_res)
-    
+
     # url, static, dynamic 결과가 비어있으면 False, 0.0 반환
     if not urlres or not sres or not dres:
         app_logger.error("Error combining results: Empty results")
@@ -191,7 +193,7 @@ def combine_results(urlres, sres, dres):
 
     app_logger.info(f"Combined prediction: {combined_pred}")
 
-    return combined_pred >= 0.5, combined_pred
+    return combined_pred >= 0.5, combined_pred, urlres[0]['confidence'] > 0.5, s_conf > 0.5, d_conf > 0.5
 
 
 # send url to database ============================================
@@ -209,16 +211,23 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
     url_aggregated = True if urlres[0]['prediction'] == 'malicious' else False
 
     # choose the maximum confidence score and take its prediction
-    static_aggregated = True if max(staticres, key=lambda x: x['confidence'])['prediction'] == 'malicious' else False
-    dynamic_aggregated = True if max(dynamicres, key=lambda x: x['confidence'])['prediction'] == 'malicious' else False
+    static_aggregated = True if max(staticres, key=lambda x: x['confidence'])[
+        'prediction'] == 'malicious' else False
+    dynamic_aggregated = True if max(dynamicres, key=lambda x: x['confidence'])[
+        'prediction'] == 'malicious' else False
 
-    app_logger.info(f"Final results: URL: {url_aggregated}, Static: {static_aggregated}, Dynamic: {dynamic_aggregated}")
+    app_logger.info(
+        f"Final results: URL: {url_aggregated}, Static: {static_aggregated}, Dynamic: {dynamic_aggregated}")
 
     # Convert numpy.bool_ to Python bool (if necessary)
-    final_res = bool(final_res) if isinstance(final_res, np.bool_) else final_res
-    url_aggregated = bool(url_aggregated) if isinstance(url_aggregated, np.bool_) else url_aggregated
-    static_aggregated = bool(static_aggregated) if isinstance(static_aggregated, np.bool_) else static_aggregated
-    dynamic_aggregated = bool(dynamic_aggregated) if isinstance(dynamic_aggregated, np.bool_) else dynamic_aggregated
+    final_res = bool(final_res) if isinstance(
+        final_res, np.bool_) else final_res
+    url_aggregated = bool(url_aggregated) if isinstance(
+        url_aggregated, np.bool_) else url_aggregated
+    static_aggregated = bool(static_aggregated) if isinstance(
+        static_aggregated, np.bool_) else static_aggregated
+    dynamic_aggregated = bool(dynamic_aggregated) if isinstance(
+        dynamic_aggregated, np.bool_) else dynamic_aggregated
 
     # url query
     sql_url_query = """
@@ -235,7 +244,7 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
         "accessCount" = "Url"."accessCount" + 1,
         "updatedAt" = NOW();
     """
-    
+
     # confidence score hit rate query
     sql_hitrate_query = """
     INSERT INTO "ConfidenceHitRate" ("confidenceRange", "count", "updatedAt")
@@ -245,27 +254,65 @@ def send_to_database(url, final_res, confidence_score, urlres, staticres, dynami
         "count" = "ConfidenceHitRate"."count" + 1,
         "updatedAt" = NOW();
     """
-    
+
     # save to history database
     history_sql_query = '''
     INSERT INTO "History" ("userId", "url", "isMalicious", "detectedBy", "confidenceScore", "createdAt")
     VALUES (%s, %s, %s, 'AI_MODEL', %s, NOW());
     '''
-    
+
+    confusion_matrix_query = '''
+    INSERT INTO "ConfusionMatrix" ("modelType", "truePos", "trueNeg", "falsePos", "falseNeg", "createdAt", "updatedAt")
+    VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+    ON CONFLICT ("modelType")
+    DO UPDATE SET
+        "truePos" = "ConfusionMatrix"."truePos" + %s,
+        "trueNeg" = "ConfusionMatrix"."trueNeg" + %s,
+        "falsePos" = "ConfusionMatrix"."falsePos" + %s,
+        "falseNeg" = "ConfusionMatrix"."falseNeg" + %s,
+        "updatedAt" = NOW();
+    '''
+
     cur = db_conn.cursor()
 
-    cur.execute(sql_url_query, (url, final_res, url_aggregated, static_aggregated, dynamic_aggregated, confidence_score))
+    cur.execute(sql_url_query, (url, final_res, url_aggregated,
+                static_aggregated, dynamic_aggregated, confidence_score))
+    app_logger.info("Url saved to the database")
     cur.execute(sql_hitrate_query, (get_confidence_range(confidence_score),))
-    cur.execute(history_sql_query, (request.user['id'], url, final_res, confidence_score))
+    app_logger.info("Confidence hit rate updated")
+    cur.execute(history_sql_query,
+                (request.user['id'], url, final_res, confidence_score))
+    app_logger.info("History saved to the database")
+    models = [('url', url_aggregated), ('static', static_aggregated), ('dynamic', dynamic_aggregated)]
+    for model, pred in models:
+        update_confusion_matrix(model, bool(pred == final_res), pred, confusion_matrix_query, cur)
+
     db_conn.commit()
     cur.close()
+    
+    return
 
-    app_logger.info("Url saved to the database and confidence hit rate updated")
 
-
+def update_confusion_matrix(model_type, same_as_tot, prediction, query, cur):
+    if same_as_tot:
+        if prediction:
+            # False positive correction
+            cur.execute(query, (model_type, -1, 0, 1, 0, -1, 0, 1, 0))
+        else:
+            # False negative correction
+            cur.execute(query, (model_type, 0, 1, 0, -1, 0, 1, 0, -1))
+    else:
+        if prediction:
+            # True negative correction
+            cur.execute(query, (model_type, 0, 1, 0, -1, 0, 1, 0, -1))
+        else:
+            # True positive correction
+            cur.execute(query, (model_type, -1, 0, 1, 0, -1, 0, 1, 0))
+            
+            
 # endpoint for url ai-check ======================================
 @app.route('/url/ai', methods=['POST'])
-@login_required # jwt protection
+@login_required  # jwt protection
 def process_url():
     data = request.get_json()
 
@@ -295,11 +342,13 @@ def process_url():
         app_logger.info(f"Static result: {staticres}")
         app_logger.info(f"Dynamic result: {dynamicres}")
 
-        final_res, confidence_score = combine_results(
+        final_res, confidence_score, upred, spred, dpred = combine_results(
             urlres, staticres, dynamicres)
 
-        final_res = bool(final_res) if isinstance(
-            final_res, np.bool_) else final_res
+        final_res = bool(final_res) if isinstance(final_res, np.bool_) else final_res
+        upred = bool(upred) if isinstance(upred, np.bool_) else upred
+        spred = bool(spred) if isinstance(spred, np.bool_) else spred
+        dpred = bool(dpred) if isinstance(dpred, np.bool_) else dpred
 
         send_to_database(url, final_res, confidence_score,
                          urlres, staticres, dynamicres)  # save to the database
@@ -310,11 +359,83 @@ def process_url():
             "data": {
                 "url": url,
                 "isMalicious": final_res,
+                "urlPrediction": upred,
+                "staticPrediction": spred,
+                "dynamicPrediction": dpred,
                 "source": 2,
             }
         }), 200
     except Exception as e:
         app_logger.error(f"Error checking url: {e}")
+        return jsonify({
+            "statusCode": 500,
+            "message": f"Internal server error: {e}"
+        }), 500
+
+
+@app.route('/ai/feedback', methods=['POST'])
+@login_required
+def feedback():
+    data = request.get_json()
+
+    if data is None:
+        return jsonify({
+            "statusCode": 400,
+            "message": "Invalid request"
+        }), 400
+
+    url, totpred, upred, spred, dpred = data.get("url"), data.get("isMalicious"), data.get(
+        'urlPrediction'), data.get('staticPrediction'), data.get('dynamicPrediction')
+
+    if totpred is None or upred is None or spred is None or dpred is None:
+        return jsonify({
+            "statusCode": 400,
+            "message": "Invalid request"
+        }), 400
+
+    # update the confidence score
+    query = '''
+    INSERT INTO "ConfusionMatrix" ("modelType", "truePos", "trueNeg", "falsePos", "falseNeg", "createdAt", "updatedAt")
+    VALUES (%s, %s, %s, %s, %s, NOW(), NOW())
+    ON CONFLICT ("modelType")
+    DO UPDATE SET
+        "truePos" = "ConfusionMatrix"."truePos" + %s,
+        "trueNeg" = "ConfusionMatrix"."trueNeg" + %s,
+        "falsePos" = "ConfusionMatrix"."falsePos" + %s,
+        "falseNeg" = "ConfusionMatrix"."falseNeg" + %s,
+        "updatedAt" = NOW();
+    '''
+
+    url_query = '''
+    UPDATE "Url"
+    SET "falsePos" = "falsePos" + %s,
+        "falseNeg" = "falseNeg" + %s
+    WHERE "url" = %s;
+    '''
+
+    cur = db_conn.cursor()
+    models = [('url', upred), ('static', spred), ('dynamic', dpred)]
+
+    try:
+        # Update confusion matrix for each model type
+        for model, pred in models:
+            update_confusion_matrix(model, pred == totpred, pred, query, cur)
+
+        # Update URL table
+        if totpred:
+            cur.execute(url_query, (1, 0, url))
+        else:
+            cur.execute(url_query, (0, 1, url))
+
+        db_conn.commit()
+        cur.close()
+
+        return jsonify({
+            "statusCode": 200,
+            "message": "Feedback received"
+        }), 200
+    except Exception as e:
+        app_logger.error(f"Error sending feedback: {e}")
         return jsonify({
             "statusCode": 500,
             "message": "Internal server error"

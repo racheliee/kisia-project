@@ -25,6 +25,12 @@ enum DETECTOR {
   AI_MODEL
 }
 
+enum ModelType {
+  url
+  static
+  dynamic
+}
+
 model User {
   id            String    @id @default(uuid())
   username      String    @unique
@@ -34,7 +40,7 @@ model User {
   dailyRequests Int       @default(0) // number of requests made by the user in a day; resets at 00:00
   requestsLimit Int       @default(3) // number of requests allowed per day for free users
   lastLogin     DateTime? // last login time
-  refreshToken  String?   // used for refreshing access token
+  refreshToken  String? // used for refreshing access token
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -71,14 +77,14 @@ model History {
 }
 
 model ConfusionMatrix {
-  id        Int      @id @default(autoincrement())
-  modelType String   @unique // static, dynamic, ai
-  truePos   Int      @default(0)
-  trueNeg   Int      @default(0)
-  falsePos  Int      @default(0)
-  falseNeg  Int      @default(0)
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  id        Int       @id @default(autoincrement())
+  modelType ModelType @unique
+  truePos   Int       @default(0)
+  trueNeg   Int       @default(0)
+  falsePos  Int       @default(0)
+  falseNeg  Int       @default(0)
+  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now())
 }
 
 model RequestSummary {
