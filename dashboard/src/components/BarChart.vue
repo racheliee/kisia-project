@@ -189,10 +189,12 @@ export default {
 
 <style scoped>
 .bar-chart-container {
-  height: 100%; /* Allow full height */
-  width: 100%; /* Allow full width */
+  height: 100%;
+  width: 100%;
   padding: 20px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
@@ -203,8 +205,14 @@ export default {
 }
 
 .chart-content {
-  height: 80vh; /* Makes chart content responsive based on viewport height */
-  width: 32rem;
+  flex-grow: 1;
+  width: 100%;
+  position: relative;
+}
+
+.chart-content .chartjs-render-monitor {
+  height: 100% !important;
+  width: 100% !important;
 }
 
 h3 {

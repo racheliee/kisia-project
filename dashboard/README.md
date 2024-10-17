@@ -1,4 +1,4 @@
-# admin_dashboard
+# URLs Dashboard
 
 ## Project setup
 ```
@@ -20,5 +20,7 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Connect Url
+[url](http://43.203.239.57:3000/)
+
+

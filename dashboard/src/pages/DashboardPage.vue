@@ -18,7 +18,7 @@
         <Top5Chart />
       </div>
       
-      <div class="chart-card">
+      <div class="chart-card"> 
         <BarChart title="All AI Requests" />
       </div>
     </div>

@@ -56,11 +56,18 @@ export default {
   },
   methods: {
     async handleLogin() {
-      // Admin login bypass
+
+      // temp admin account
       if (this.loginId === "admin" && this.password === "admin") {
         localStorage.setItem("access_token", "dummy_admin_access_token");
         localStorage.setItem("refresh_token", "dummy_admin_refresh_token");
         this.$router.push({ name: "DashboardPage" });
+        return;
+      }
+      if (this.loginId === "guest" && this.password === "guest") {
+        localStorage.setItem("access_token", "dummy_admin_access_token");
+        localStorage.setItem("refresh_token", "dummy_admin_refresh_token");
+        this.$router.push({ name: "UserDashboardPage" });
         return;
       }
 
@@ -82,7 +89,13 @@ export default {
           const { access_token, refresh_token } = response.data.data; // 중첩된 data 하나 제거
           localStorage.setItem("access_token", access_token);
           localStorage.setItem("refresh_token", refresh_token);
-          this.$router.push({ name: "DashboardPage" });
+
+          // 관리자 또는 특정 사용자만 AdminDashboard로 이동
+          if (this.loginId === "admin" || this.loginId === "example") {
+            this.$router.push({ name: "DashboardPage" });
+          } else {
+            this.$router.push({ name: "UserDashboardPage" });
+          }
           console.log("로그인 성공");
         } else {
           console.log("조건에 맞지 않는 응답:", response);

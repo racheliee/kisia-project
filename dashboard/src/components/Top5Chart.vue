@@ -42,33 +42,19 @@ export default {
       tabs: [
         {
           label: "Access Count",
-          data: [
-            { label: "URL1", value: 50 },
-            { label: "URL2", value: 40 },
-            { label: "URL3", value: 30 },
-            { label: "URL4", value: 20 },
-            { label: "URL5", value: 10 },
-          ],
+          data: [],
         },
         {
           label: "False Negative Report",
-          data: [
-            { label: "URL1", value: 45 },
-            { label: "URL2", value: 10 },
-            { label: "URL3", value: 25 },
-            { label: "URL4", value: 15 },
-            { label: "URL5", value: 5 },
-          ],
+          data: [],
         },
         {
           label: "False Positive Report",
-          data: [
-            { label: "URL1", value: 42 },
-            { label: "URL2", value: 32 },
-            { label: "URL3", value: 11 },
-            { label: "URL4", value: 12 },
-            { label: "URL5", value: 2 },
-          ],
+          data: [],
+        },
+        {
+          label: "Malicious URLs",
+          data: [],
         },
       ],
       chartOptions: {
@@ -87,7 +73,10 @@ export default {
         },
         scales: {
           x: { beginAtZero: true, grid: { color: "#f0f0f0" } },
-          y: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 14 }, color: "#555" } },
+          y: {
+            grid: { color: "#f0f0f0" },
+            ticks: { display: false }, // Hide y-axis labels since URLs are displayed in the bars
+          },
         },
       },
     };
@@ -95,22 +84,55 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const [accessCountRes, fnRes, fpRes] = await Promise.all([
-          axios.get("http://43.203.239.57:8000/admin/top-accessed-urls"),
+        // eslint-disable-next-line no-unused-vars
+        const [accessCountRes, fnRes, fpRes, maliciousRes] = await Promise.all([
+          axios.get("http://43.203.239.57:8000/admin/top-urls"),
           axios.get("http://43.203.239.57:8000/admin/top-false-negatives"),
           axios.get("http://43.203.239.57:8000/admin/top-false-postives"),
+          axios.get("http://43.203.239.57:8000/admin/top-malicious"),
         ]);
 
-        this.tabs[0].data = accessCountRes.data.map(item => ({ label: item.url, value: item.accessCount }));
-        this.tabs[1].data = fnRes.data.map(item => ({ label: item.url, value: item.fnCount }));
-        this.tabs[2].data = fpRes.data.map(item => ({ label: item.url, value: item.fpCount }));
+        this.tabs[0].data = accessCountRes.data.data.map(item => ({ label: item.url, value: item.accessCount }));
+        this.tabs[1].data = fnRes.data.data.map(item => ({ label: item.url, value: item.falseNegCount }));
+        this.tabs[2].data = fpRes.data.data.map(item => ({ label: item.url, value: item.falsePosCount }));
+        this.tabs[3].data = maliciousRes.data.data.map(item => ({ label: item.url, value: item.accessCount }));
       } catch (error) {
         console.error("Failed to fetch data, using default values:", error);
+
+        // Temporary data in case of failure
+        this.tabs[0].data = [
+          { label: "URL1", value: 50 },
+          { label: "URL2", value: 40 },
+          { label: "URL3", value: 30 },
+          { label: "URL4", value: 20 },
+          { label: "URL5", value: 10 },
+        ];
+        this.tabs[1].data = [
+          { label: "URL1", value: 45 },
+          { label: "URL2", value: 10 },
+          { label: "URL3", value: 25 },
+          { label: "URL4", value: 15 },
+          { label: "URL5", value: 5 },
+        ];
+        this.tabs[2].data = [
+          { label: "URL1", value: 42 },
+          { label: "URL2", value: 32 },
+          { label: "URL3", value: 11 },
+          { label: "URL4", value: 12 },
+          { label: "URL5", value: 2 },
+        ];
+        this.tabs[3].data = [
+          { label: "URL1", value: 6 },
+          { label: "URL2", value: 4 },
+          { label: "URL3", value: 3 },
+          { label: "URL4", value: 2 },
+          { label: "URL5", value: 1 },
+        ];
       }
     },
     getChartData(data) {
       return {
-        labels: data.map(item => item.label),
+        labels: data.map(item => item.label), // Hide the label on the y-axis
         datasets: [
           {
             label: this.tabs[this.activeTab].label,
@@ -120,8 +142,10 @@ export default {
             borderWidth: 1,
             borderRadius: 10,
             hoverBackgroundColor: "#1e88e5",
+            barThickness: 30,
           },
         ],
+        urls: data.map(item => item.label),
       };
     },
   },
@@ -178,5 +202,20 @@ button.active {
 .chart-content {
   padding: 15px;
   height: 300px;
+}
+
+.chart-content .bar {
+  position: relative;
+}
+
+.chart-content .bar:before {
+  content: attr(data-label);
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #fff;
+  white-space: nowrap;
 }
 </style>

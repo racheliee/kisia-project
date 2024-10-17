@@ -30,7 +30,7 @@ export default {
         "총 URL 갯수": 1,
         "악성 URL 갯수": 0,
         "총 사용자수": 1,
-        "DB Size": "9049 KB",
+        "DB Size": "9050 KB",
       };
 
       try {

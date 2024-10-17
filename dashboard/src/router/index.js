@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import DashboardPage from '@/pages/DashboardPage.vue';
+import UserDashboardPage from '@/pages/UserDashboardPage.vue';
 import LoginPage from '@/pages/LoginPage.vue';
 import SignupPage from '@/pages/SignupPage.vue'; // SignupPage 컴포넌트 추가
 
@@ -13,6 +14,12 @@ const routes = [
     path: '/AdminDashboard',
     name: 'DashboardPage',
     component: DashboardPage,
+    meta: { requiresAuth: true }, // 인증이 필요한 페이지로 설정
+  },
+  {
+    path: '/UserDashboard',
+    name: 'UserDashboardPage',
+    component: UserDashboardPage,
     meta: { requiresAuth: true }, // 인증이 필요한 페이지로 설정
   },
   {
