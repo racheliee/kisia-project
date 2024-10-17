@@ -56,7 +56,6 @@ export default {
   },
   methods: {
     async handleLogin() {
-
       // temp admin account
       if (this.loginId === "admin" && this.password === "admin") {
         localStorage.setItem("access_token", "dummy_admin_access_token");
@@ -64,10 +63,10 @@ export default {
         this.$router.push({ name: "DashboardPage" });
         return;
       }
-      if (this.loginId === "guest" && this.password === "guest") {
+      if (this.loginId === "test" && this.password === "test") {
         localStorage.setItem("access_token", "dummy_admin_access_token");
         localStorage.setItem("refresh_token", "dummy_admin_refresh_token");
-        this.$router.push({ name: "UserDashboardPage" });
+        this.$router.push({ name: "UserDashboardPage", query: { userId: this.loginId } });
         return;
       }
 
@@ -93,8 +92,6 @@ export default {
           // 관리자 또는 특정 사용자만 AdminDashboard로 이동
           if (this.loginId === "admin" || this.loginId === "example") {
             this.$router.push({ name: "DashboardPage" });
-          } else {
-            this.$router.push({ name: "UserDashboardPage" });
           }
           console.log("로그인 성공");
         } else {

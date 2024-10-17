@@ -186,7 +186,6 @@ export default {
 
 .search-button:hover {
   background-color: #1e88e5;
-  transform: scale(1.05);
 }
 
 .modal-overlay {
@@ -295,7 +294,6 @@ export default {
 
 .details-button:hover {
   background-color: #43a047;
-  transform: scale(1.05);
 }
 
 .pagination {
