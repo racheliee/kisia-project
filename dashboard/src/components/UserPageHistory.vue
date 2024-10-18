@@ -3,7 +3,7 @@
   <div class="user-page-history">
     <h2 class="header">User Page History</h2>
     <div v-if="isLoading" class="loading">Loading...</div>
-    <div v-if="errorMessage" class="error">{{ errorMessage }}</div>
+    <!-- <div v-if="errorMessage" class="error">{{ errorMessage }}</div> -->
     <div v-if="historyData.length > 0" class="history-container">
       <div v-for="(item, index) in historyData" :key="index" class="history-item">
         <div v-for="(accessedUrl, urlIndex) in item.urlsAccessed" :key="urlIndex" class="url-details">

@@ -47,13 +47,13 @@ export default {
 }
 
 .main-logo {
-  width: 50px;
+  width: 80px;
   height: auto;
   margin-right: 1rem;
 }
 
 .text-logo {
-  height: 30px;
+  height: 80px;
   width: auto;
 }
 

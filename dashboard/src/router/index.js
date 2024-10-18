@@ -3,10 +3,16 @@ import DashboardPage from '@/pages/DashboardPage.vue';
 import UserDashboardPage from '@/pages/UserDashboardPage.vue';
 import LoginPage from '@/pages/LoginPage.vue';
 import SignupPage from '@/pages/SignupPage.vue'; // SignupPage 컴포넌트 추가
+import MainPage from '@/pages/MainPage.vue';
 
 const routes = [
   {
     path: '/',
+    name: 'MainPage',
+    component: MainPage,
+  },
+  {
+    path: '/LoginPage',
     name: 'LoginPage',
     component: LoginPage,
   },

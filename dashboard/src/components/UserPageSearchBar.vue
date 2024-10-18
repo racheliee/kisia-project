@@ -1,55 +1,45 @@
 <template>
-  <div class="search-bar">
-    <div class="search-bar-container">
+  <div class="container">
+    <div class="input-section">
       <input
-        v-model="url"
         type="text"
-        placeholder="Enter URL to scan"
-        @keyup.enter="searchUrl"
-        class="search-input"
+        v-model="url"
+        placeholder="URL을 입력하세요"
+        class="url-input"
       />
-      <button @click="searchUrl" class="search-icon-button">
-        <img src="@/assets/search.svg" alt="Search" class="search-icon" />
-      </button>
+      <button @click="onCheck" class="check-button">검사</button>
     </div>
 
-    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-content">
-        <span class="close-button" @click="closeModal">&times;</span>
-        <div class="modal-header">
-          <h3 class="modal-title">URL Analysis Report</h3>
+    <div class="detect-section">
+      <div class="first-detect card">
+        <h2>1차 검사 결과</h2>
+        <div class="result">
+          <span class="label">최종 결과:</span>
+          <span :class="['value', finalResultClass]">
+            {{ finalResult }}
+          </span>
         </div>
-        <div class="modal-body">
-          <div class="modal-item">
-            <span class="item-label">URL:</span>
-            <span class="item-value">{{ urlData.url }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">Is Malicious:</span>
-            <span class="item-value" :class="{'malicious': urlData.isMalicious}">{{ urlData.isMalicious ? 'Yes' : 'No' }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">Access Count:</span>
-            <span class="item-value">{{ urlData.accessCount }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">False Negatives:</span>
-            <span class="item-value">{{ urlData.falseNeg }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">False Positives:</span>
-            <span class="item-value">{{ urlData.falsePos }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">Created At:</span>
-            <span class="item-value">{{ formatDate(urlData.createdAt) }}</span>
-          </div>
-          <div class="modal-item">
-            <span class="item-label">Updated At:</span>
-            <span class="item-value">{{ formatDate(urlData.updatedAt) }}</span>
-          </div>
+        <div class="result">
+          <span class="label">API/DB 결과:</span>
+          <span class="value">{{ apiDbResult }}</span>
         </div>
       </div>
+
+      <div class="second-detect card">
+        <h2>AI 추가 검사</h2>
+        <button @click="onAiCheck" class="ai-button">AI 추가 검사</button>
+        <div class="result">
+          <span class="label">AI 검사 결과:</span>
+          <span :class="['value', aiResultClass]">
+            {{ aiResult }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-overlay" v-if="isLoading">
+      <div class="loading-spinner"></div>
+      <p>로딩 중...</p>
     </div>
   </div>
 </template>
@@ -61,116 +51,239 @@ export default {
   data() {
     return {
       url: '',
-      urlData: {
-        url: '',
-        isMalicious: false,
-        accessCount: 0,
-        falseNeg: 0,
-        falsePos: 0,
-        createdAt: '',
-        updatedAt: '',
+      finalResult: '', // '악성' or '노말'
+      apiDbResult: '', // 'NONE', 'DB', 'API'
+      aiResult: '', // '악성' or '노말'
+      isLoading: false,
+      // 임시 데이터 (axios 요청 실패 시 사용)
+      tempDataDatabase: {
+        statusCode: 200,
+        message: 'Successfully received and processed URL',
+        data: {
+          url: 'www.google.com',
+          isMalicious: false,
+          source: 0,
+        },
       },
-      responseMessage: null,
-      showModal: false,
+      tempDataAi: {
+        statusCode: 200,
+        message: 'Successfully received and processed URL',
+        data: {
+          url: 'www.google.com',
+          isMalicious: true,
+          source: 2,
+        },
+      },
     };
   },
+  computed: {
+    finalResultClass() {
+      return this.finalResult === '악성' ? 'malicious' : 'normal';
+    },
+    aiResultClass() {
+      return this.aiResult === '악성' ? 'malicious' : 'normal';
+    },
+  },
   methods: {
-    async searchUrl() {
+    async onCheck() {
       if (!this.url) {
-        this.responseMessage = 'Please enter a URL.';
+        alert('URL을 입력하세요');
+        return;
+      }
+      this.isLoading = true;
+      try {
+        const response = await axios.post('/url/database', { url: this.url });
+
+        if (response.status === 200) {
+          const { isMalicious, source } = response.data.data;
+          this.finalResult = isMalicious ? '악성' : '노말';
+          if (isMalicious) {
+            this.apiDbResult =
+              source === 0 ? 'DB' : source === 1 ? 'API' : 'UNKNOWN';
+          } else {
+            this.apiDbResult = 'NONE';
+          }
+        } else {
+          alert(`에러: ${response.data.message}`);
+        }
+      } catch (error) {
+        // axios 요청 실패 시 임시 데이터 사용
+        console.error('Axios error:', error);
+        alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+
+        const result = this.tempDataDatabase;
+        const { isMalicious, source } = result.data;
+        this.finalResult = isMalicious ? '악성' : '노말';
+        if (isMalicious) {
+          this.apiDbResult =
+            source === 0 ? 'DB' : source === 1 ? 'API' : 'UNKNOWN';
+        } else {
+          this.apiDbResult = 'NONE';
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async onAiCheck() {
+      if (!this.url) {
+        alert('URL을 입력하세요');
         return;
       }
 
-      try {
-        const response = await axios.post('/admin/url-search', {
-          url: this.url,
-        });
+      // localStorage에서 access_token 가져오기
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        alert('Access token이 없습니다. 다시 로그인해주세요.');
+        return;
+      }
 
-        if (response.data.statusCode === 200) {
-          this.urlData = response.data.data;
-          this.responseMessage = null;
+      this.isLoading = true;
+      try {
+        const response = await axios.post(
+          '/url/ai',
+          { url: this.url },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          const { isMalicious } = response.data.data;
+          this.aiResult = isMalicious ? '악성' : '노말';
         } else {
-          this.setDefaultUrlData(response.data.message);
+          alert(`에러: ${response.data.message}`);
         }
       } catch (error) {
-        this.setDefaultUrlData(error.response?.data?.message || 'An error occurred during the request.');
+        // axios 요청 실패 시 임시 데이터 사용
+        console.error('Axios error:', error);
+        alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+
+        const result = this.tempDataAi;
+        const { isMalicious } = result.data;
+        this.aiResult = isMalicious ? '악성' : '노말';
       } finally {
-        this.openModal();
+        this.isLoading = false;
       }
-    },
-    setDefaultUrlData(message) {
-      this.responseMessage = message || 'An error occurred.';
-      this.urlData = {
-        url: this.url + ' // Not Found',
-        isMalicious: false,
-        accessCount: 0,
-        falseNeg: 0,
-        falsePos: 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleString();
-    },
-    openModal() {
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
     },
   },
 };
 </script>
 
 <style scoped>
-.search-bar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3rem;
-  margin: 3rem 0;
-
+/* 컨테이너 스타일 */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-.search-bar-container {
+/* 입력 섹션 스타일 */
+.input-section {
   display: flex;
   align-items: center;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 0.75rem;
-  width: 600px;
-  background-color: #ffffff;
+  margin-bottom: 30px;
 }
 
-.search-input {
+.url-input {
   flex: 1;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: none;
-  outline: none;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
 }
 
-.search-icon-button {
-  background: none;
+.check-button {
+  padding: 12px 20px;
+  margin-left: 10px;
+  background-color: #4caf50;
+  color: #fff;
   border: none;
+  border-radius: 4px;
+}
+
+.check-button:hover {
+  background-color: #45a049;
   cursor: pointer;
-  padding: 0;
-  margin-left: 0.75rem;
 }
 
-.search-icon {
-  width: 24px;
-  height: 24px;
+/* detect-section 재디자인 */
+.detect-section {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-.response-message {
-  margin-top: 1.5rem;
-  color: red;
+.card {
+  flex: 0 0 48%;
+  box-sizing: border-box;
+  margin-bottom: 30px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: box-shadow 0.3s ease;
 }
 
-.modal-overlay {
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 20px;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.label {
+  width: 130px;
+  font-weight: bold;
+  color: #555;
+}
+
+.value {
+  font-size: 18px;
+}
+
+.malicious {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.normal {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+/* AI 버튼 위치 조정 */
+.second-detect .ai-button {
+  margin-bottom: 15px;
+}
+
+/* AI 버튼 스타일 */
+.ai-button {
+  padding: 12px 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+}
+
+.ai-button:hover {
+  background-color: #2980b9;
+  cursor: pointer;
+}
+
+/* 로딩 오버레이 스타일 */
+.loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -180,65 +293,57 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  width: 80%;
-  max-width: 700px;
-  position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  font-size: 2rem;
-  cursor: pointer;
-  color: #333;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.modal-body {
-  display: flex;
   flex-direction: column;
-  gap: 1rem;
+  z-index: 9999;
 }
 
-.modal-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem;
-  background-color: #f1f1f1;
-  border-radius: 8px;
+.loading-spinner {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #4caf50;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  animation: spin 1s linear infinite;
 }
 
-.item-label {
-  font-weight: bold;
-  color: #555;
+.loading-overlay p {
+  color: #fff;
+  margin-top: 20px;
+  font-size: 20px;
 }
 
-.item-value {
-  color: #333;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.item-value.malicious {
-  color: red;
-  font-weight: bold;
+/* 반응형 디자인 */
+@media (max-width: 800px) {
+  .detect-section {
+    flex-direction: column;
+  }
+
+  .card {
+    flex: 1 0 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .input-section {
+    flex-direction: column;
+  }
+
+  .check-button {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .ai-button {
+    width: 100%;
+    margin-top: 10px;
+  }
 }
 </style>

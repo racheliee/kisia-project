@@ -67,14 +67,25 @@ export default {
 .content {
   display: flex;
   flex: 1;
-  gap: 1.5rem; 
+  gap: 1.5rem;
+  margin-top: 5rem;
 }
 
 .url-search {
   max-height: 40vh;
 }
 
-.content-left,
+.content-left {
+  flex: 1;
+  /* background-color: #ffffff; */
+  padding: 0;
+  /* border: 1px solid #ddd; */
+  border-radius: 8px;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+  max-height: 130vh;
+  overflow-y: auto;
+}
+
 .content-right {
   flex: 1;
   background-color: #ffffff;
@@ -82,7 +93,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-height: 80vh;
+  max-height: 130vh;
   overflow-y: auto;
 }
 
