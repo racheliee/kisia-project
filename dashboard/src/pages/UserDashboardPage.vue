@@ -1,73 +1,115 @@
 <template>
-  <div class="user-page">
-    <UserHeader :userId="userId" />
-    <div class="main-content">
-      <div class="bottom-section">
-        <div class="top5">
-          <UserTop5Chart />
+  <div class="full-container">
+    <UserPageHeader :username="userId" />
+
+    <section class="url-search">
+      <UserPageSearchBar />
+    </section>
+
+    <div class="content">
+      <div class="content-left">
+        <div class="keep-in-mind-url">
+          <UserPageKeepInMindUrl />
         </div>
-        <div class="db-search">
-          <UserUrlSerach />
+        <div class="user-url-news">
+          <UserPageNews />
         </div>
       </div>
-      <UserImageSlider />
+
+      <div class="content-right">
+        <UserPageHistory />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import UserImageSlider from "@/components/UserImageSlider.vue";
-import UserHeader from "@/components/UserHeader.vue";
-import UserTop5Chart from "@/components/UserTop5Chart.vue";
-import UserUrlSerach from "@/components/UserUrlSerach.vue";
+import UserPageHeader from "@/components/UserPageHeader.vue";
+import UserPageSearchBar from "@/components/UserPageSearchBar.vue";
+import UserPageKeepInMindUrl from "@/components/UserPageKeepInMindUrl.vue";
+import UserPageNews from "@/components/UserPageNews.vue";
+import UserPageHistory from "@/components/UserPageHistory.vue";
 
 export default {
-  name: "UserDashboardPage",
   components: {
-    UserImageSlider,
-    UserHeader,
-    UserTop5Chart,
-    UserUrlSerach,
+    UserPageHeader,
+    UserPageSearchBar,
+    UserPageKeepInMindUrl,
+    UserPageNews,
+    UserPageHistory
+  },
+  data() {
+    return {
+      searchQuery: "",
+      keepInMindUrls: [],
+      userUrlNews: [],
+      searchHistory: [],
+    };
   },
   computed: {
     userId() {
-      // console.log(this.$route.query);
-      return this.$route.query.userId;
+      return this.$route.query.userId || "Guest"; // 값이 없을 경우 기본값 설정
     },
   },
 };
 </script>
 
-
 <style scoped>
-.user-page {
-  display: flex;
-  flex-direction: column;
+.full-container {
+  width: 100%;
   height: 100vh;
-  height: max-content;
-  padding: 16px;
-}
-
-.main-content {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  gap: 16px;
-  margin-top: 16px;
+  box-sizing: border-box;
+  padding: 1rem;
+  background-color: #f5f5f5;
 }
 
-.bottom-section {
+.content {
   display: flex;
-  gap: 16px;
-}
-
-.top5,
-.db-search {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  max-height: max-content;
+  gap: 1.5rem; /* 좌우 칸 사이에 일정 간격 추가 */
+}
+
+.url-search {
+  max-height: 40vh;
+}
+
+.content-left,
+.content-right {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.keep-in-mind-url,
+.user-url-news {
+  margin-bottom: 1.5rem;
+}
+
+.keep-in-mind-url,
+.user-url-news,
+.content-right {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.keep-in-mind-url h2,
+.user-url-news h2 {
+  margin-top: 0;
 }
 </style>
