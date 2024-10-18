@@ -57,7 +57,6 @@ export default {
 <style scoped>
 .full-container {
   width: 100%;
-  height: 100vh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
