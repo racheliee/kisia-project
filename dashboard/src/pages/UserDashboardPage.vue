@@ -68,7 +68,7 @@ export default {
 .content {
   display: flex;
   flex: 1;
-  gap: 1.5rem; /* 좌우 칸 사이에 일정 간격 추가 */
+  gap: 1.5rem; 
 }
 
 .url-search {
@@ -83,7 +83,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-height: 100vh;
+  max-height: 80vh;
   overflow-y: auto;
 }
 
