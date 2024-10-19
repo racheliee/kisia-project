@@ -93,3 +93,23 @@ body {
   background-color: #333;
   transform: scale(1.05);
 }
+
+.feedback {
+  background-color: #555;
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  font-size: 16px;
+  background-color: #a7a7a7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.feedback:hover {
+  background-color: #333;
+  transform: scale(1.05);
+}

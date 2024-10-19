@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // loader.style.display = "block";
 
       // 서버로 URL 전송
-      fetch("http://3.34.247.22:57176/index.php", {
+      fetch("http://43.203.239.57:8000/url/database", {
         // 서버의 엔드포인트 주소
         method: "POST",
         headers: {

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // loader.style.display = "block"; // 로더 표시
 
-      fetch("http://3.34.247.22:57176/index.php", {
+      fetch("http://43.203.239.57:8000/database", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: linkUrl }),
