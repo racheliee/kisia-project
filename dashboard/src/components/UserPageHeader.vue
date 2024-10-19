@@ -38,7 +38,7 @@ export default {
   padding: 1rem 2rem;
   background-color: #ffffff;
   border-bottom: 2px solid #e9ecef;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
 }
 
 .logo-box {

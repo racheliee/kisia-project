@@ -1,6 +1,8 @@
 <template>
   <div class="full-container">
-    <UserPageHeader :username="userId" />
+    <div class="userPageHeader">
+      <UserPageHeader :username="userId" />
+    </div>
 
     <section class="url-search">
       <UserPageSearchBar />
@@ -60,7 +62,7 @@ export default {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  padding: 1rem;
+  padding: 0;
   background-color: #f5f5f5;
 }
 
@@ -122,4 +124,11 @@ h2 {
 .user-url-news h2 {
   margin-top: 0;
 }
+
+.content-right {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+
 </style>

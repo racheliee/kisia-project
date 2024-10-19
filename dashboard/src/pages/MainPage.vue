@@ -15,7 +15,6 @@
       <section class="hero">
         <div class="hero__content">
           <div class="hero__text">
-            <!-- 타이핑 효과를 위해 변경된 부분 -->
             <h1 class="hero__heading">
               {{ typedHeading }}
               <br v-if="typedSecondHeading"/>
@@ -47,7 +46,7 @@ export default {
   data() {
     return {
       // 헤딩을 두 부분으로 나눔
-      fullHeading: 'A Simple check,',
+      fullHeading: 'A simple check,',
       typedHeading: '',
       secondHeading: 'total safety',
       typedSecondHeading: '',
@@ -251,6 +250,7 @@ body {
   font-size: 1.2rem;
   cursor: pointer;
   transition: background 0.3s;
+  background: #e5e5e5;
 }
 
 .button--cta:hover {
@@ -304,6 +304,11 @@ body {
   animation: blink 1s infinite;
   vertical-align: bottom;
   margin-left: 2px;
+}
+
+.button--signup:hover,
+.button--login:hover {
+  color: #e55a5a;
 }
 
 @keyframes blink {

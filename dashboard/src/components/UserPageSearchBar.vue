@@ -176,7 +176,7 @@ export default {
 /* 컨테이너 스타일 */
 .container {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 50px auto;
   padding: 20px;
 }
 

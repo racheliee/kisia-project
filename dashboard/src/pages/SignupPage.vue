@@ -121,7 +121,7 @@ export default {
   width: 100%;
   max-width: 400px;
   padding: 40px;
-  margin-top: 100px;
+  margin-top: 150px;
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
