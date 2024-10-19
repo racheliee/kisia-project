@@ -47,7 +47,7 @@ export default {
   data() {
     return {
       // 헤딩을 두 부분으로 나눔
-      fullHeading: 'Simple check,',
+      fullHeading: 'A Simple check,',
       typedHeading: '',
       secondHeading: 'total safety',
       typedSecondHeading: '',
