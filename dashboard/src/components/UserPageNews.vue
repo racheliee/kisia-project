@@ -11,16 +11,16 @@ export default {
     return {
       newsData: [
         {
-          image: 'https://via.placeholder.com/800x400',
-          title: 'News Title 1',
+          image: 'https://www.boannews.com/media/upFiles2/2024/08/814399607_9801.jpg',
+          title: 'KISIA, ‘2024 제2회 KISIA 정보보호 개발자 해커톤’ 큰 호응 속 개최',
         },
         {
-          image: 'https://via.placeholder.com/800x400',
-          title: 'News Title 2',
+          image: 'https://cdn.datanet.co.kr/news/photo/202409/196545_119853_4122.jpg',
+          title: 'KISIA, 금융권 망분리 규제개선 세미나 개최',
         },
         {
-          image: 'https://via.placeholder.com/800x400',
-          title: 'News Title 3',
+          image: 'https://cdn.digitaltoday.co.kr/news/photo/202409/534852_499627_2727.png',
+          title: 'KISIA, 사이버보안 모태펀드 운용사 ‘린벤처스’와 MOU',
         },
       ],
       currentIndex: 0,

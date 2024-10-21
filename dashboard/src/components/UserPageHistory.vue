@@ -5,30 +5,53 @@
     <div v-if="isLoading" class="loading">Loading...</div>
     <!-- <div v-if="errorMessage" class="error">{{ errorMessage }}</div> -->
     <div v-if="historyData.length > 0" class="history-container">
-      <div v-for="(item, index) in historyData" :key="index" class="history-item">
-        <div v-for="(accessedUrl, urlIndex) in item.urlsAccessed" :key="urlIndex" class="url-details">
+      <div
+        v-for="(item, index) in historyData"
+        :key="index"
+        class="history-item"
+      >
+        <div
+          v-for="(accessedUrl, urlIndex) in item.urlsAccessed"
+          :key="urlIndex"
+          class="url-details"
+        >
           <div class="url-card">
-            <p><strong>URL:</strong> <a :href="accessedUrl.url" target="_blank" class="url-link">{{ accessedUrl.url }}</a></p>
-            <p><strong>Malicious:</strong> <span :class="accessedUrl.isMalicious ? 'malicious' : 'safe'">{{ accessedUrl.isMalicious ? 'Yes' : 'No' }}</span></p>
-            <p><strong>Accessed At:</strong> {{ new Date(accessedUrl.createdAt).toLocaleString() }}</p>
+            <p>
+              <strong>URL:</strong>
+              <a :href="accessedUrl.url" target="_blank" class="url-link">{{
+                accessedUrl.url
+              }}</a>
+            </p>
+            <p>
+              <strong>Malicious:</strong>
+              <span :class="accessedUrl.isMalicious ? 'malicious' : 'safe'">{{
+                accessedUrl.isMalicious ? "Yes" : "No"
+              }}</span>
+            </p>
+            <p>
+              <strong>Accessed At:</strong>
+              {{ new Date(accessedUrl.createdAt).toLocaleString() }}
+            </p>
           </div>
         </div>
       </div>
     </div>
-    <div v-if="!isLoading && historyData.length === 0" class="no-history">No history available.</div>
+    <div v-if="!isLoading && historyData.length === 0" class="no-history">
+      No history available.
+    </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'UserPageHistory',
+  name: "UserPageHistory",
   data() {
     return {
       historyData: [],
       isLoading: false,
-      errorMessage: '',
+      errorMessage: "",
     };
   },
   created() {
@@ -38,16 +61,16 @@ export default {
     async fetchUserHistory() {
       this.isLoading = true;
       try {
-        const response = await axios.get('/user/history');
+        const response = await axios.get("/user/history");
         if (response.status === 200 && response.data.statusCode === 200) {
           this.historyData = response.data.data;
         } else {
           this.setTempData();
-          this.errorMessage = 'Failed to fetch user history.';
+          this.errorMessage = "Failed to fetch user history.";
         }
       } catch (error) {
         this.setTempData();
-        this.errorMessage = 'An error occurred while fetching user history.';
+        this.errorMessage = "An error occurred while fetching user history.";
       } finally {
         this.isLoading = false;
       }
@@ -57,53 +80,38 @@ export default {
         {
           urlsAccessed: [
             {
-              url: 'http://temp-example.com',
-              isMalicious: false,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              url: 'http://malicious-site.com',
+              url: "http://000066655333778880000.000webhostapp.com/",
               isMalicious: true,
               createdAt: new Date().toISOString(),
             },
             {
-              url: 'http://safe-website.com',
+              url: "http://021bag.com/",
+              isMalicious: true,
+              createdAt: new Date().toISOString(),
+            },
+            {
+              url: "http://naver.com",
               isMalicious: false,
               createdAt: new Date().toISOString(),
             },
             {
-              url: 'http://unknown-site.org',
+              url: "http://google.com",
               isMalicious: false,
               createdAt: new Date().toISOString(),
             },
             {
-              url: 'http://unknown-site.org',
+              url: "http://example.com",
               isMalicious: false,
               createdAt: new Date().toISOString(),
             },
             {
-              url: 'http://unknown-site.org',
+              url: "http://unknown-site.org",
               isMalicious: false,
               createdAt: new Date().toISOString(),
             },
             {
-              url: 'http://unknown-site.org',
-              isMalicious: false,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              url: 'http://unknown-site.org',
-              isMalicious: false,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              url: 'http://unknown-site.org',
-              isMalicious: false,
-              createdAt: new Date().toISOString(),
-            },
-            {
-              url: 'http://unknown-site.org',
-              isMalicious: false,
+              url: "http://0432www.com/",
+              isMalicious: true,
               createdAt: new Date().toISOString(),
             },
           ],

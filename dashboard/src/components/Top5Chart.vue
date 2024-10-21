@@ -27,7 +27,14 @@
 <script>
 import axios from "axios";
 import { Bar } from "vue-chartjs";
-import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip } from "chart.js";
+import {
+  Chart as ChartJS,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+} from "chart.js";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip);
 
@@ -92,51 +99,63 @@ export default {
           axios.get("http://43.203.239.57:8000/admin/top-malicious"),
         ]);
 
-        this.tabs[0].data = accessCountRes.data.data.map(item => ({ label: item.url, value: item.accessCount }));
-        this.tabs[1].data = fnRes.data.data.map(item => ({ label: item.url, value: item.falseNegCount }));
-        this.tabs[2].data = fpRes.data.data.map(item => ({ label: item.url, value: item.falsePosCount }));
-        this.tabs[3].data = maliciousRes.data.data.map(item => ({ label: item.url, value: item.accessCount }));
+        this.tabs[0].data = accessCountRes.data.data.map((item) => ({
+          label: item.url,
+          value: item.accessCount,
+        }));
+        this.tabs[1].data = fnRes.data.data.map((item) => ({
+          label: item.url,
+          value: item.falseNegCount,
+        }));
+        this.tabs[2].data = fpRes.data.data.map((item) => ({
+          label: item.url,
+          value: item.falsePosCount,
+        }));
+        this.tabs[3].data = maliciousRes.data.data.map((item) => ({
+          label: item.url,
+          value: item.accessCount,
+        }));
       } catch (error) {
         console.error("Failed to fetch data, using default values:", error);
 
         // Temporary data in case of failure
         this.tabs[0].data = [
-          { label: "URL1", value: 50 },
-          { label: "URL2", value: 40 },
-          { label: "URL3", value: 30 },
-          { label: "URL4", value: 20 },
-          { label: "URL5", value: 10 },
+          { label: "https://google.com", value: 11 },
+          { label: "https://naver.com", value: 10 },
+          { label: "http://021bag.com", value: 7 },
+          { label: "http://0432www.com", value: 4 },
+          { label: "https://www.kisia.or.kr/", value: 3 },
         ];
         this.tabs[1].data = [
-          { label: "URL1", value: 45 },
-          { label: "URL2", value: 10 },
-          { label: "URL3", value: 25 },
-          { label: "URL4", value: 15 },
-          { label: "URL5", value: 5 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
         ];
         this.tabs[2].data = [
-          { label: "URL1", value: 42 },
-          { label: "URL2", value: 32 },
-          { label: "URL3", value: 11 },
-          { label: "URL4", value: 12 },
-          { label: "URL5", value: 2 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
+          { label: "", value: 0 },
         ];
         this.tabs[3].data = [
-          { label: "URL1", value: 6 },
-          { label: "URL2", value: 4 },
-          { label: "URL3", value: 3 },
-          { label: "URL4", value: 2 },
-          { label: "URL5", value: 1 },
+          { label: "http://021bag.com", value: 4 },
+          { label: "http://0432www.com", value: 3 },
+          { label: "http://04324g.com/", value: 2 },
+          { label: "http://000066655333778880000.000webhostapp.com/", value: 1 },
+          { label: "http://0432bbb.com/", value: 1 },
         ];
       }
     },
     getChartData(data) {
       return {
-        labels: data.map(item => item.label), // Hide the label on the y-axis
+        labels: data.map((item) => item.label), // Hide the label on the y-axis
         datasets: [
           {
             label: this.tabs[this.activeTab].label,
-            data: data.map(item => item.value),
+            data: data.map((item) => item.value),
             backgroundColor: "rgba(66, 165, 245, 0.6)",
             borderColor: "#42A5F5",
             borderWidth: 1,
@@ -145,7 +164,7 @@ export default {
             barThickness: 30,
           },
         ],
-        urls: data.map(item => item.label),
+        urls: data.map((item) => item.label),
       };
     },
   },

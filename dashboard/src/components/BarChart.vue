@@ -118,7 +118,7 @@ export default {
     generateMonthLabels() {
       const labels = [];
       const date = new Date();
-      for (let i = 11; i >= 0; i--) {
+      for (let i = 2; i >= 0; i--) { // i 범위 수정 받아 올 값들
         const monthDate = new Date(date.getFullYear(), date.getMonth() - i, 1);
         labels.push(`${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}`);
       }
@@ -161,7 +161,7 @@ export default {
           datasets: [
             {
               label: "총 검사 요청",
-              data: [50, 60, 55, 70, 85, 90, 95, 100, 110, 105, 120, 130],
+              data: [5, 16, 11, 70, 85, 90, 95, 100, 110, 105, 120, 130], // 받아올 만큼 배열 만들기
               backgroundColor: "#42a5f5",
               borderRadius: 12,
               borderWidth: 2,
@@ -169,7 +169,7 @@ export default {
             },
             {
               label: "AI 검사 요청",
-              data: [20, 30, 25, 40, 45, 50, 55, 60, 65, 70, 75, 80],
+              data: [3, 14, 10, 40, 45, 50, 55, 60, 65, 70, 75, 80],
               backgroundColor: "#ff6384",
               borderRadius: 12,
               borderWidth: 2,

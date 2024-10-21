@@ -26,16 +26,23 @@ export default {
   },
   methods: {
     async fetchData() {
-      const defaultData = {
-        "총 URL 갯수": 1,
-        "악성 URL 갯수": 0,
-        "총 사용자수": 1,
-        "DB Size": "9050 KB",
+      // 기존 데이터를 설정
+      let defaultData = {
+        "총 URL 갯수": 46,
+        "악성 URL 갯수": 8,
+        "총 사용자수": 2,
+        "DB Size": "57.80 MB",
       };
-
+      
       try {
-        if (this.title === "총 URL 갯수" || this.title === "악성 URL 갯수" || this.title === "DB Size") {
-          const response = await axios.get("http://43.203.239.57:8000/admin/db-overview");
+        if (
+          this.title === "총 URL 갯수" ||
+          this.title === "악성 URL 갯수" ||
+          this.title === "DB Size"
+        ) {
+          const response = await axios.get(
+            "http://43.203.239.57:8000/admin/db-overview"
+          );
           const data = response.data.data;
           if (this.title === "총 URL 갯수") {
             this.value = data.totalUrls;
@@ -45,7 +52,9 @@ export default {
             this.value = data.size;
           }
         } else if (this.title === "총 사용자수") {
-          const response = await axios.get("http://43.203.239.57:8000/admin/users/total-users");
+          const response = await axios.get(
+            "http://43.203.239.57:8000/admin/users/total-users"
+          );
           this.value = response.data.data;
         }
       } catch (error) {

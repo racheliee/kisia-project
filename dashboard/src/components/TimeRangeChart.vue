@@ -78,7 +78,7 @@ export default {
             backgroundColor: "#333",
             titleFont: {
               size: 14,
-              weight: 'bold',
+              weight: "bold",
             },
             bodyFont: {
               size: 12,
@@ -116,7 +116,9 @@ export default {
     },
     async fetchChartData() {
       try {
-        const response = await axios.get(`/admin/total-requests?interval=${this.activeRange}`);
+        const response = await axios.get(
+          `/admin/total-requests?interval=${this.activeRange}`
+        );
         const data = response.data.data;
 
         let labels = [];
@@ -181,15 +183,27 @@ export default {
         for (let i = 23; i >= 0; i--) {
           const hour = new Date(now);
           hour.setHours(now.getHours() - i);
-          labels.push(`${hour.getHours()}시`);
-          values.push(Math.floor(Math.random() * 100) + 1); // 임시 데이터
+          if (
+            now.getHours() - i == 3 ||
+            now.getHours() - i == 4 ||
+            now.getHours() - i == 5 ||
+            now.getHours() - i == 6 ||
+            now.getHours() - i == 7 ||
+            now.getHours() - i == 8
+          ) {
+            labels.push(`${hour.getHours()}시`);
+            values.push(0); // 임시 데이터
+          } else {
+            labels.push(`${hour.getHours()}시`);
+            values.push(Math.floor(Math.random() * 5)); // 임시 데이터
+          }
         }
       } else if (range === "day") {
         for (let i = 0; i < 7; i++) {
           const day = new Date(now);
           day.setDate(now.getDate() - i);
           labels.unshift(`${day.getMonth() + 1}월 ${day.getDate()}일`);
-          values.unshift(Math.floor(Math.random() * 500) + 100); // 임시 데이터
+          values.unshift(Math.floor(Math.random() * 10)); // 임시 데이터
         }
       } else if (range === "week") {
         for (let i = 7; i >= 0; i--) {
@@ -197,16 +211,30 @@ export default {
           weekStart.setDate(now.getDate() - i * 7);
           const weekEnd = new Date(weekStart);
           weekEnd.setDate(weekStart.getDate() + 6);
-          labels.push(`${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${weekEnd.getMonth() + 1}/${weekEnd.getDate()}`);
-          values.push(Math.floor(Math.random() * 700) + 150); // 임시 데이터
+          labels.push(
+            `${weekStart.getMonth() + 1}/${weekStart.getDate()} - ${
+              weekEnd.getMonth() + 1
+            }/${weekEnd.getDate()}`
+          );
+          values.push(Math.floor(Math.random() * 20)); // 임시 데이터
         }
       } else if (range === "month") {
-        for (let i = 5; i >= 0; i--) {
-          const month = new Date(now);
-          month.setMonth(now.getMonth() - i);
-          labels.push(`${month.getFullYear()}-${month.getMonth() + 1}`);
-          values.push(Math.floor(Math.random() * 1000) + 200); // 임시 데이터
-        }
+        // for (let i = 2; i >= 0; i--) {
+        //   const month = new Date(now);
+        //   month.setMonth(now.getMonth() - i);
+        //   labels.push(`${month.getFullYear()}-${month.getMonth() + 1}`);
+        //   values.push(Math.floor(Math.random() * 100)); // 임시 데이터
+        // }
+        const month = new Date(now);
+        month.setMonth(now.getMonth() - 0);
+        labels.push(`${month.getFullYear()}-${month.getMonth() + 1}`);
+        values.push(8); // 임시 데이터
+        month.setMonth(now.getMonth() - 1);
+        labels.push(`${month.getFullYear()}-${month.getMonth() + 1}`);
+        values.push(30); // 임시 데이터
+        month.setMonth(now.getMonth() - 2);
+        labels.push(`${month.getFullYear()}-${month.getMonth() + 1}`);
+        values.push(21); // 임시 데이터
       }
 
       return {
@@ -238,7 +266,7 @@ export default {
 .time-range-chart {
   max-width: 100%; /* 가로 크기를 더 적당하게 조정 */
   height: 450px;
-  width: 90%;    
+  width: 90%;
   margin: 50px auto;
   padding: 20px;
   border-radius: 15px;
@@ -273,7 +301,7 @@ button.active {
 }
 
 .chart-container {
-  height: 350px; 
+  height: 350px;
   width: 100%;
 }
 </style>

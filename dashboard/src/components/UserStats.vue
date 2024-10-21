@@ -38,9 +38,9 @@ Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 export default {
   data() {
     return {
-      totalUsers: 1000,
-      newUsers: 50,
-      activeUsers: 3500,
+      totalUsers: 2,
+      newUsers: 2,
+      activeUsers: 2,
       activeUsersData: this.generateActiveUsersData(),
       chart: null,
     };
@@ -73,7 +73,12 @@ export default {
     generateActiveUsersData() {
       const data = [];
       for (let i = 0; i < 30; i++) {
-        data.push(Math.floor(Math.random() * 50) + 10);
+        // data.push(Math.floor(Math.random() * 2) + 1);
+        if (i == 28 || i == 29) {
+          data.push(1);
+        } else {
+          data.push(0);
+        }
       }
       return data;
     },

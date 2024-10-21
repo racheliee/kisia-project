@@ -16,19 +16,22 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
-  name: 'UserPageKeepInMindUrl',
+  name: "UserPageKeepInMindUrl",
   data() {
     return {
       urls: [],
       sampleData: [
-        { url: 'http://sample1.com', accessCount: 10 },
-        { url: 'http://sample2.com', accessCount: 8 },
-        { url: 'http://sample3.com', accessCount: 15 },
-        { url: 'http://sample4.com', accessCount: 5 },
-        { url: 'http://sample5.com', accessCount: 12 },
+        { url: "http://021bag.com", accessCount: 4 },
+        { url: "http://0432www.com", accessCount: 3 },
+        { url: "http://04324g.com/", accessCount: 2 },
+        {
+          url: "000066655333778880000.000webhostapp.com/",
+          accessCount: 1,
+        },
+        { url: "http://0432bbb.com/", accessCount: 1 },
       ],
     };
   },
@@ -38,12 +41,12 @@ export default {
   methods: {
     async fetchTopMaliciousUrls() {
       try {
-        const response = await axios.get('/admin/top-malicious');
+        const response = await axios.get("/admin/top-malicious");
         if (response.status === 200 && response.data.statusCode === 200) {
           this.urls = response.data.data;
         }
       } catch (error) {
-        console.error('Failed to fetch top malicious URLs:', error);
+        console.error("Failed to fetch top malicious URLs:", error);
         this.urls = this.sampleData;
       }
     },

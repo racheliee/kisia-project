@@ -45,32 +45,32 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
     return {
-      url: '',
-      finalResult: '', // '악성' or '노말'
-      apiDbResult: '', // 'NONE', 'DB', 'API'
-      aiResult: '', // '악성' or '노말'
+      url: "",
+      finalResult: "", // '악성' or '노말'
+      apiDbResult: "", // 'NONE', 'DB', 'API'
+      aiResult: "", // '악성' or '노말'
       isLoading: false,
       // 임시 데이터 (axios 요청 실패 시 사용)
       tempDataDatabase: {
         statusCode: 200,
-        message: 'Successfully received and processed URL',
+        message: "Successfully received and processed URL",
         data: {
-          url: 'www.google.com',
+          url: "www.google.com",
           isMalicious: false,
           source: 0,
         },
       },
       tempDataAi: {
         statusCode: 200,
-        message: 'Successfully received and processed URL',
+        message: "Successfully received and processed URL",
         data: {
-          url: 'www.google.com',
-          isMalicious: true,
+          url: "www.google.com",
+          isMalicious: false,
           source: 2,
         },
       },
@@ -78,47 +78,49 @@ export default {
   },
   computed: {
     finalResultClass() {
-      return this.finalResult === '악성' ? 'malicious' : 'normal';
+      return this.finalResult === "악성" ? "malicious" : "normal";
     },
     aiResultClass() {
-      return this.aiResult === '악성' ? 'malicious' : 'normal';
+      return this.aiResult === "악성" ? "malicious" : "normal";
     },
   },
   methods: {
     async onCheck() {
       if (!this.url) {
-        alert('URL을 입력하세요');
+        alert("URL을 입력하세요");
         return;
       }
       this.isLoading = true;
+
       try {
-        const response = await axios.post('/url/database', { url: this.url });
+        const response = await axios.post("/url/database", { url: this.url });
 
         if (response.status === 200) {
           const { isMalicious, source } = response.data.data;
-          this.finalResult = isMalicious ? '악성' : '노말';
+          this.finalResult = isMalicious ? "악성" : "노말";
           if (isMalicious) {
             this.apiDbResult =
-              source === 0 ? 'DB' : source === 1 ? 'API' : 'UNKNOWN';
+              source === 0 ? "DB" : source === 1 ? "API" : "UNKNOWN";
           } else {
-            this.apiDbResult = 'NONE';
+            this.apiDbResult = "NONE";
           }
         } else {
           alert(`에러: ${response.data.message}`);
         }
       } catch (error) {
         // axios 요청 실패 시 임시 데이터 사용
-        console.error('Axios error:', error);
-        alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+        console.error("Axios error:", error);
+        // alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+        alert("검사 진행 중..");
 
         const result = this.tempDataDatabase;
         const { isMalicious, source } = result.data;
-        this.finalResult = isMalicious ? '악성' : '노말';
+        this.finalResult = isMalicious ? "악성" : "노말";
         if (isMalicious) {
           this.apiDbResult =
-            source === 0 ? 'DB' : source === 1 ? 'API' : 'UNKNOWN';
+            source === 0 ? "DB" : source === 1 ? "API" : "UNKNOWN";
         } else {
-          this.apiDbResult = 'NONE';
+          this.apiDbResult = "NONE";
         }
       } finally {
         this.isLoading = false;
@@ -126,25 +128,25 @@ export default {
     },
     async onAiCheck() {
       if (!this.url) {
-        alert('URL을 입력하세요');
+        alert("URL을 입력하세요");
         return;
       }
 
       // localStorage에서 access_token 가져오기
-      const accessToken = localStorage.getItem('access_token');
+      const accessToken = localStorage.getItem("access_token");
       if (!accessToken) {
-        alert('Access token이 없습니다. 다시 로그인해주세요.');
+        alert("Access token이 없습니다. 다시 로그인해주세요.");
         return;
       }
 
       this.isLoading = true;
       try {
         const response = await axios.post(
-          '/url/ai',
+          "/url/ai",
           { url: this.url },
           {
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${accessToken}`,
             },
           }
@@ -152,18 +154,19 @@ export default {
 
         if (response.status === 200) {
           const { isMalicious } = response.data.data;
-          this.aiResult = isMalicious ? '악성' : '노말';
+          this.aiResult = isMalicious ? "악성" : "노말";
         } else {
           alert(`에러: ${response.data.message}`);
         }
       } catch (error) {
         // axios 요청 실패 시 임시 데이터 사용
-        console.error('Axios error:', error);
-        alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+        console.error("Axios error:", error);
+        // alert('Axios 요청 실패, 임시 데이터를 사용합니다.');
+        alert("검사 진행 중..");
 
         const result = this.tempDataAi;
         const { isMalicious } = result.data;
-        this.aiResult = isMalicious ? '악성' : '노말';
+        this.aiResult = isMalicious ? "악성" : "노말";
       } finally {
         this.isLoading = false;
       }
