@@ -41,15 +41,19 @@ export default {
       models: [
         {
           modelName: "URL",
-          confusionMatrix: { TP: 50, FP: 10, FN: 5, TN: 100 },
+          // confusionMatrix: { TP: 50, FP: 10, FN: 5, TN: 100 },
+          confusionMatrix: { TP: 0, FP: 0, FN: 0, TN: 0 },
         },
         {
           modelName: "Dynamic",
-          confusionMatrix: { TP: 60, FP: 8, FN: 7, TN: 90 },
+          // confusionMatrix: { TP: 60, FP: 8, FN: 7, TN: 90 },
+          confusionMatrix: { TP: 0, FP: 0, FN: 0, TN: 0 },
         },
         {
           modelName: "Static",
-          confusionMatrix: { TP: 40, FP: 12, FN: 10, TN: 110 },
+          // confusionMatrix: { TP: 40, FP: 12, FN: 10, TN: 110 },
+          confusionMatrix: { TP: 0, FP: 0, FN: 0, TN: 0 },
+
         },
       ],
       currentIndex: 0,
