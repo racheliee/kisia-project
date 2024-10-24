@@ -41,7 +41,7 @@ export default {
           this.title === "DB Size"
         ) {
           const response = await axios.get(
-            "http://43.203.239.57:8000/admin/db-overview"
+            "1/admin/db-overview"
           );
           const data = response.data.data;
           if (this.title === "총 URL 갯수") {
@@ -53,7 +53,7 @@ export default {
           }
         } else if (this.title === "총 사용자수") {
           const response = await axios.get(
-            "http://43.203.239.57:8000/admin/users/total-users"
+            "1/admin/users/total-users"
           );
           this.value = response.data.data;
         }
