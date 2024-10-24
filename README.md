@@ -1,4 +1,9 @@
 # kisia-project
+## KISIA 인공지능 보안 기술 개발 (네트워크반)
+- 프로젝트 5팀
+- 프로젝트: 악성 URL 탐지 서비스
+- 발표자료: [최종발표자료](./assets/KISIA%20최종발표자료.pdf)
+- [시연영상](https://drive.google.com/drive/folders/1ZXdDlIyNXRblmh3VGFcHS4mnAyef84e8?usp=sharing)
 
 ## KISIA 제2회 정보보호 개발자 Hackathon (2024)
 
@@ -7,8 +12,10 @@
 - 프로젝트: 악성 URL 탐지 서비스 (Chrome Extension)
 - 발표자료: [율스 악성 URL 탐지 서비스 발표자료](./assets/kisia%20hackathon%20발표자료.pdf)
 
-<img src="./extension/icon.png" width="100">
-<img src="./extension/image/text-logo.png" width="100">
+<div style="display: flex; align-items: center;">
+  <img src="./extension/icon.png" width="100" alt="Icon">
+  <img src="./extension/image/text-logo.png" width="100" alt="Text Logo">
+</div>
 
 ### 기능
 
@@ -33,31 +40,9 @@
   - HynekPetrak/javascript-malware-collection
   - kaggle malicious url dataset
   - Universit of Maribor malicious url dataset
+  - Trojan Dataset for Malicious Network Packets
 
 ### Demo
 
 - [율스 악성 URL 탐지 서비스 탐지 시연 영상](https://drive.google.com/file/d/1MR6lOnnYuWg-IO3W-muJ0djdQdglDErT/view?usp=drive_link)
 - [율스 악성 URL 탐지 서비스 미탐지 시연 영상](https://drive.google.com/file/d/1UIsQsFgGIL_0CFuzHnU2InUrbaD2Cp_s/view?usp=sharing)
-
-## Notes about running the URLS
-
-### flask server
-
-- node version 12 and 14 are required due to the tools used in the project
-  - node version 12 for `jalangi2`
-    - set the project to use node version 12
-  - node version 14 for `prettier`
-    - version will change automatically to 14 when running prettier
-- You can use `nvm` to manage node versions
-```bash
-   nvm install 12
-   nvm use 12
-```
-
-### nestjs server
-
-- needs node version 20
-```bash
-   nvm install 20
-   nvm use 20
-```
