@@ -97,7 +97,7 @@ export default {
 
         if (response.status === 200) {
           const { isMalicious, source } = response.data.data;
-          this.finalResult = isMalicious ? "악성" : "노말";
+          this.finalResult = isMalicious ? "악성" : "정상";
           if (isMalicious) {
             this.apiDbResult =
               source === 0 ? "DB" : source === 1 ? "API" : "UNKNOWN";
@@ -115,7 +115,7 @@ export default {
 
         const result = this.tempDataDatabase;
         const { isMalicious, source } = result.data;
-        this.finalResult = isMalicious ? "악성" : "노말";
+        this.finalResult = isMalicious ? "악성" : "정상";
         if (isMalicious) {
           this.apiDbResult =
             source === 0 ? "DB" : source === 1 ? "API" : "UNKNOWN";
@@ -154,7 +154,7 @@ export default {
 
         if (response.status === 200) {
           const { isMalicious } = response.data.data;
-          this.aiResult = isMalicious ? "악성" : "노말";
+          this.aiResult = isMalicious ? "악성" : "정상";
         } else {
           alert(`에러: ${response.data.message}`);
         }
@@ -166,7 +166,7 @@ export default {
 
         const result = this.tempDataAi;
         const { isMalicious } = result.data;
-        this.aiResult = isMalicious ? "악성" : "노말";
+        this.aiResult = isMalicious ? "악성" : "정상";
       } finally {
         this.isLoading = false;
       }
