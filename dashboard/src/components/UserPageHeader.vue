@@ -23,7 +23,7 @@ export default {
     logout() {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
-      alert("Logged out successfully.");
+      // alert("Logged out successfully.");
       this.$router.push("/"); // 홈 페이지로 리다이렉트
     }
   }

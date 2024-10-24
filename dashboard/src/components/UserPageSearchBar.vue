@@ -105,7 +105,7 @@ export default {
             this.apiDbResult = "NONE";
           }
         } else {
-          alert(`에러: ${response.data.message}`);
+          // alert(`에러: ${response.data.message}`);
         }
       } catch (error) {
         // axios 요청 실패 시 임시 데이터 사용
