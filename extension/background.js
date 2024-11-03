@@ -2,7 +2,7 @@ chrome.runtime.onInstalled.addListener(() => {
   // Context menu 생성
   chrome.contextMenus.create({
     id: "sendUrl",
-    title: "Send Link URL to Popup",
+    title: "악성 url 검사",
     contexts: ["link"],
   });
 
